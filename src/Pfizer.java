@@ -1,26 +1,26 @@
 
 public class Pfizer extends Vacuna {
-	private static int stock = 0;
+	private static int cantidadStock = 0;
 
 	public Pfizer() {
 		super(2);
 	}
 
-	public static void actualizarStock(int stockRecibido) {
-		stock += stockRecibido;
+	public static int getStock() {
+		return cantidadStock;
 	}
 
-	public static void actualizarStockVacunaPlanificada() {
-		stock--;
+	public static void quitarStock() {
+		cantidadStock--;
+	}
+
+	public static void aumentarStock(int cantidad) {
+		cantidadStock += cantidad;
 	}
 
 	@Override
 	public String toString() {
-		return "Pfizer [getNumeroDosis()=" + getNumeroDosis() + "]";
-	}
-
-	public static int getStock() {
-		return stock;
+		return "Pfizer:\ngetDosis()=" + getDosis();
 	}
 
 }

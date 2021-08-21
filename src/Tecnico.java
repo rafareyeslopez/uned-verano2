@@ -1,101 +1,20 @@
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 
 public class Tecnico extends Empleado {
 
-	static void actualizarResultado(String dniTecnico) throws ParseException {
-		Scanner scanner = new Scanner(System.in);
-
-		System.out.println("Las  pruebas que tiene asignadas y sin resultado aun son:");
-		List<PruebaDiagnostica> obtenerPruebasAsignadasTecnico = PruebaDiagnostica
-				.obtenerPruebasAsignadasTecnico(dniTecnico);
-		for (PruebaDiagnostica pruebaDiagnostica : obtenerPruebasAsignadasTecnico) {
-			System.out.println(pruebaDiagnostica);
-		}
-		System.out.println("Introduzca ID de la prueba a registrar");
-		int idPrueba = Integer.parseInt(scanner.nextLine());
-		PruebaDiagnostica prueba = PruebaDiagnostica.obtenerPrueba(idPrueba);
-		if (prueba != null) {
-			if (prueba instanceof PruebaRapida) {
-				PruebaRapida pruebaRapida = (PruebaRapida) prueba;
-				System.out.println(pruebaRapida);
-				System.out.println("Indique resultado, positivo 'P', negativo 'N'");
-				String resultado = scanner.nextLine();
-				if (resultado.equals("P")) {
-					pruebaRapida.setResultado(true);
-					PruebaDiagnostica.actualizarPruebaRealizadaTecnico(pruebaRapida);
-					Paciente paciente = prueba.getPaciente();
-					Persona.confinar(paciente, prueba.getFecha());
-				} else if (resultado.equals("N")) {
-					pruebaRapida.setResultado(false);
-					PruebaDiagnostica.actualizarPruebaRealizadaTecnico(pruebaRapida);
-				} else {
-					System.out.println("Resultado no valido para prueba");
-				}
-			} else if (prueba instanceof PruebaClasica) {
-				PruebaClasica pruebaClasica = (PruebaClasica) prueba;
-				System.out.println(pruebaClasica);
-				System.out.println("Indique resultado, positivo 'P', negativo 'N'");
-				String resultado = scanner.nextLine();
-				if (resultado.equals("P")) {
-					pruebaClasica.setResultado(true);
-					PruebaDiagnostica.actualizarPruebaRealizadaTecnico(pruebaClasica);
-					Paciente paciente = prueba.getPaciente();
-					Persona.confinar(paciente, prueba.getFecha());
-				} else if (resultado.equals("N")) {
-					pruebaClasica.setResultado(false);
-					PruebaDiagnostica.actualizarPruebaRealizadaTecnico(pruebaClasica);
-				} else {
-					System.out.println("Resultado no valido para prueba");
-				}
-			} else if (prueba instanceof TestPcr) {
-				TestPcr testPcr = (TestPcr) prueba;
-				System.out.println(testPcr);
-				System.out.println("Indique resultado, positivo 'P', negativo 'N'");
-				String resultado = scanner.nextLine();
-				if (resultado.equals("P")) {
-					testPcr.setPositivo(true);
-					Paciente paciente = prueba.getPaciente();
-					Persona.confinar(paciente, prueba.getFecha());
-
-					PruebaDiagnostica.actualizarPruebaRealizadaTecnico(testPcr);
-				} else if (resultado.equals("N")) {
-					testPcr.setPositivo(false);
-					PruebaDiagnostica.actualizarPruebaRealizadaTecnico(testPcr);
-				} else {
-					System.out.println("Resultado no valido para prueba");
-				}
-			} else if (prueba instanceof AnalisisSerologico) {
-				AnalisisSerologico analisisSerologico = (AnalisisSerologico) prueba;
-				System.out.println(analisisSerologico);
-				System.out.println("Indique resultado, entre 0 y 10");
-				int resultado = Integer.parseInt(scanner.nextLine());
-				if (resultado >= 0 || resultado <= 10) {
-					analisisSerologico.setValorAnticuerpos(resultado);
-					PruebaDiagnostica.actualizarPruebaRealizadaTecnico(prueba);
-				} else {
-					System.out.println("Resultado no valido para prueba");
-				}
-			}
-
-		} else {
-			System.out.println("Prueba no encontrada!");
-		}
+	public Tecnico(String dni, String nombre, String apellidos, int edad, String direccion, String telefono) {
+		super(dni, nombre, apellidos, edad, direccion, telefono);
+		pruebasTecnico = new ArrayList<PruebaDiagnostica>();
 	}
 
-	static void verPacientesAsignados() {
-		List<PruebaDiagnostica> obtenerPruebasAsignadasTecnico = PruebaDiagnostica
-				.obtenerPruebasAsignadasTecnico(Principal.dniUsuarioActivo);
-		for (PruebaDiagnostica pruebaDiagnostica : obtenerPruebasAsignadasTecnico) {
-			if (pruebaDiagnostica.isRealizada()) {
-				System.out.println(pruebaDiagnostica);
-			}
-		}
+	private List<PruebaDiagnostica> pruebasTecnico;
 
-	}
-
-	static void menuTecnico() {
+	public void menuTecnico() {
 		int opcionMenuSeleccionUsuario = 0;
 		do {
 			try {
@@ -119,10 +38,10 @@ public class Tecnico extends Empleado {
 					break;
 
 				case 1:
-					GestorTecnico.verPacientesAsignados();
+					verPruebasTecnico();
 					break;
 				case 2:
-					Tecnico.actualizarResultado(Principal.dniUsuarioActivo);
+					actualizarResultado();
 					break;
 				default:
 
@@ -134,4 +53,131 @@ public class Tecnico extends Empleado {
 			}
 		} while (opcionMenuSeleccionUsuario != 0);
 	}
+
+	void actualizarResultado() throws ParseException {
+		Scanner scanner = new Scanner(System.in);
+
+		System.out.println("Introduzca ID de la prueba a registrar");
+		int idPrueba = Integer.parseInt(scanner.nextLine());
+		PruebaDiagnostica prueba = pruebasTecnico.get(idPrueba);
+		if (prueba != null) {
+			Tecnico tecnico = Persona.getPersona(prueba.getTecnicoLaboratorio().getDireccion());
+			if (prueba instanceof PruebaRapida) {
+				PruebaRapida pruebaRapida = (PruebaRapida) prueba;
+				System.out.println(pruebaRapida);
+				System.out.println("Indique resultado, positivo 'P', negativo 'N'");
+				String resultado = scanner.nextLine();
+				if (resultado.equals("P")) {
+					pruebaRapida.setResultado(true);
+					tecnico.pruebaRealizada(pruebaRapida);
+					Paciente paciente = prueba.getPaciente();
+					Persona.confinar(paciente, prueba.getFecha());
+				} else if (resultado.equals("N")) {
+					pruebaRapida.setResultado(false);
+					tecnico.pruebaRealizada(pruebaRapida);
+				} else {
+					System.out.println("Resultado no valido para prueba");
+				}
+			} else if (prueba instanceof PruebaClasica) {
+				PruebaClasica pruebaClasica = (PruebaClasica) prueba;
+				System.out.println(pruebaClasica);
+				System.out.println("Indique resultado, positivo 'P', negativo 'N'");
+				String resultado = scanner.nextLine();
+				if (resultado.equals("P")) {
+					pruebaClasica.setResultado(true);
+					tecnico.pruebaRealizada(pruebaClasica);
+					Paciente paciente = prueba.getPaciente();
+					Persona.confinar(paciente, prueba.getFecha());
+				} else if (resultado.equals("N")) {
+					pruebaClasica.setResultado(false);
+					tecnico.pruebaRealizada(pruebaClasica);
+				} else {
+					System.out.println("Resultado no valido para prueba");
+				}
+			} else if (prueba instanceof TestPcr) {
+				TestPcr testPcr = (TestPcr) prueba;
+				System.out.println(testPcr);
+				System.out.println("Indique resultado, positivo 'P', negativo 'N'");
+				String resultado = scanner.nextLine();
+				if (resultado.equals("P")) {
+					testPcr.setPositivo(true);
+					Paciente paciente = prueba.getPaciente();
+					Persona.confinar(paciente, prueba.getFecha());
+
+					tecnico.pruebaRealizada(testPcr);
+				} else if (resultado.equals("N")) {
+					testPcr.setPositivo(false);
+					tecnico.pruebaRealizada(testPcr);
+				} else {
+					System.out.println("Resultado no valido para prueba");
+				}
+			} else if (prueba instanceof AnalisisSerologico) {
+				AnalisisSerologico analisisSerologico = (AnalisisSerologico) prueba;
+				System.out.println(analisisSerologico);
+				System.out.println("Indique resultado, entre 0 y 10");
+				int resultado = Integer.parseInt(scanner.nextLine());
+				if (resultado >= 0 || resultado <= 10) {
+					analisisSerologico.setValorAnticuerpos(resultado);
+					tecnico.pruebaRealizada(analisisSerologico);
+				} else {
+					System.out.println("Resultado no valido para prueba");
+				}
+			}
+
+		} else {
+			System.out.println("Prueba no encontrada!");
+		}
+	}
+
+	private void pruebaRealizada(PruebaDiagnostica prueba) {
+		pruebasTecnico.remove(prueba);
+
+	}
+
+	private void verPruebasTecnico() {
+		if (pruebasTecnico != null) {
+			System.out.println("Mis pruebas a realizar:");
+			for (int i = 0; i < pruebasTecnico.size(); i++) {
+				PruebaDiagnostica pruebaDiagnostica = pruebasTecnico.get(i);
+				System.out.println("Prueba " + i);
+				System.out.println(pruebaDiagnostica);
+			}
+		}
+
+	}
+
+	public boolean puedeRealizarPrueba(Date fechaPruebaDate) {
+		int pruebasSemana = 0;
+		for (PruebaDiagnostica pruebaDiagnostica : pruebasTecnico) {
+			Calendar calendarPruebaPlanificar = Calendar.getInstance();
+			calendarPruebaPlanificar.setTime(fechaPruebaDate);
+			Calendar calendarPrueba = Calendar.getInstance();
+			calendarPrueba.setTime(pruebaDiagnostica.getFecha());
+			if (calendarPruebaPlanificar.get(Calendar.WEEK_OF_YEAR) == calendarPrueba.get(Calendar.WEEK_OF_YEAR)) {
+				pruebasSemana++;
+				if (pruebasSemana >= 4) {
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	public void asignarPrueba(PruebaDiagnostica prueba) {
+		pruebasTecnico.add(prueba);
+	}
+
+	public List<PruebaDiagnostica> getPruebas() {
+		return pruebasTecnico;
+	}
+
+	@Override
+	public String toString() {
+		return "Tecnico:\npruebasTecnico=" + pruebasTecnico + "\ngetPruebas()=" + getPruebas() + "\ngetPassword()="
+				+ getPassword() + "\ngetDni()=" + getDni() + "\ngetNombre()=" + getNombre() + "\ngetApellidos()="
+				+ getApellidos() + "\ngetEdad()=" + getEdad() + "\ngetDireccion()=" + getDireccion()
+				+ "\ngetTelefono()=" + getTelefono();
+	}
+
 }

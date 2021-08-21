@@ -2,25 +2,21 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 public abstract class Persona {
 
-	private String id;
+	static List<Persona> usuarios = new ArrayList<Persona>();
+
+	private String dni;
 	private String nombre;
 	private String apellidos;
-	private String edad;
+	private int edad;
 	private String direccion;
 	private String telefono;
 
-	static List<Persona> usuarios = new ArrayList<Persona>();
-
-	public Persona() {
-	}
-
-	public Persona(String id, String nombre, String apellidos, String edad, String direccion, String telefono) {
+	public Persona(String dni, String nombre, String apellidos, int edad, String direccion, String telefono) {
 		super();
-		this.id = id;
+		this.dni = dni;
 		this.nombre = nombre;
 		this.apellidos = apellidos;
 		this.edad = edad;
@@ -28,12 +24,12 @@ public abstract class Persona {
 		this.telefono = telefono;
 	}
 
-	public String getId() {
-		return id;
+	public String getDni() {
+		return dni;
 	}
 
-	public void setId(String id) {
-		this.id = id;
+	public void setDni(String dni) {
+		this.dni = dni;
 	}
 
 	public String getNombre() {
@@ -52,11 +48,11 @@ public abstract class Persona {
 		this.apellidos = apellidos;
 	}
 
-	public String getEdad() {
+	public int getEdad() {
 		return edad;
 	}
 
-	public void setEdad(String edad) {
+	public void setEdad(int edad) {
 		this.edad = edad;
 	}
 
@@ -93,14 +89,18 @@ public abstract class Persona {
 	}
 
 	public static List<Paciente> getPacientesConfinados() {
-		List<Paciente> pacientes = obtenerPacientes();
-		for (int i = 0; i < pacientes.size(); i++) {
-			Paciente paciente = pacientes.get(i);
-			if (!paciente.isConfinado()) {
-				pacientes.remove(i);
+		List<Paciente> confinados = new ArrayList<Paciente>();
+		List<Persona> lista = Persona.getUsuarios();
+		for (Persona persona : lista) {
+			if (persona instanceof Paciente) {
+				Paciente paciente = (Paciente) persona;
+
+				if (paciente.isConfinado()) {
+					confinados.add(paciente);
+				}
 			}
 		}
-		return pacientes;
+		return confinados;
 	}
 
 	public static void confinar(Paciente paciente, Date date) {
@@ -111,69 +111,21 @@ public abstract class Persona {
 		fechaFinConfinamiento.add(Calendar.DAY_OF_YEAR, 10);
 		paciente.setFechaConfinamiento(fechaConfinamiento);
 		paciente.setFechaFinConfinamiento(fechaFinConfinamiento);
-		usuarios.put(paciente.getDni(), paciente);
+		actualizarPersona(paciente);
 	}
 
-	public static List<Tecnico> obtenerTecnicos() {
-
-		List<Tecnico> listaTecnicos = new ArrayList<Tecnico>();
-
-		Set<String> keySet = usuarios.keySet();
-
-		for (String dni : keySet) {
-			Persona persona = usuarios.get(dni);
-
-			if (persona instanceof Tecnico) {
-				listaTecnicos.add((Tecnico) persona);
-
-			}
-
-		}
-		return listaTecnicos;
-
-	}
-
-	public static List<Paciente> obtenerPacientes() {
-
-		List<Paciente> listaPacientes = new ArrayList<Paciente>();
-
-		Set<String> keySet = usuarios.keySet();
-
-		for (String dni : keySet) {
-			Persona persona = usuarios.get(dni);
-
-			if (persona instanceof Paciente) {
-				listaPacientes.add((Paciente) persona);
-
-			}
-
-		}
-		return listaPacientes;
-
-	}
-
-	public static List<Enfermero> obtenerEnfermeros() {
-
-		List<Enfermero> listaEnfermeros = new ArrayList<Enfermero>();
-
-		Set<String> keySet = usuarios.keySet();
-
-		for (String dni : keySet) {
-			Persona persona = usuarios.get(dni);
-
-			if (persona instanceof Enfermero) {
-				listaEnfermeros.add((Enfermero) persona);
-
-			}
-
-		}
-		return listaEnfermeros;
-
-	}
-
-	public static Persona getPersona(String id) {
+	public static void actualizarPersona(Persona personaActualizada) {
 		for (Persona persona : usuarios) {
-			if (persona.getId().equals(id)) {
+			if (persona.equals(personaActualizada)) {
+				persona = personaActualizada;
+			}
+		}
+
+	}
+
+	public static Persona getPersona(String dni) {
+		for (Persona persona : usuarios) {
+			if (persona.getDni().equals(dni)) {
 				return persona;
 			}
 		}
@@ -182,26 +134,47 @@ public abstract class Persona {
 	}
 
 	public static void baja(String dni) {
-		usuarios.remove(dni);
+		Persona persona = getPersona(dni);
+		usuarios.remove(persona);
 
 	}
 
 	public static void modificacion(Persona persona) {
-		usuarios.put(persona.getDni(), persona);
+		baja(persona.getDni());
+		usuarios.add(persona);
 
 	}
 
 	public static void alta(Persona persona) {
-		if (usuarios.containsKey(persona.getDni())) {
-			throw new IllegalArgumentException("El usuario ya esta dado de alta");
-		} else {
-			usuarios.put(persona.getDni(), persona);
-		}
+		usuarios.add(persona);
 
 	}
 
 	public static List<Persona> getUsuarios() {
 		return usuarios;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((dni == null) ? 0 : dni.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!(obj instanceof Persona))
+			return false;
+		Persona other = (Persona) obj;
+		if (dni == null) {
+			if (other.dni != null)
+				return false;
+		} else if (!dni.equals(other.dni))
+			return false;
+		return true;
 	}
 
 }

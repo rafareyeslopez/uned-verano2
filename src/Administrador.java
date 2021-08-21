@@ -1,18 +1,17 @@
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class Administrador extends Empleado {
 
-	private static String dniUsuario;
+	public Administrador(String dni, String nombre, String apellidos, int edad, String direccion, String telefono) {
+		super(dni, nombre, apellidos, edad, direccion, telefono);
+	}
 
-	static void mostrarMenu(String dni) {
-		dniUsuario = dni;
+	public void menuAdmin() {
 		int opcion = 0;
 
 		do {
@@ -94,22 +93,26 @@ public class Administrador extends Empleado {
 	}
 
 	private static void analisisConfinamiento() throws ParseException {
+		Scanner scanner = new Scanner(System.in);
 
-		List<Paciente> pacientesConfinados = Persona.getPacientesConfinados();
-		for (Paciente paciente : pacientesConfinados) {
-			System.out.println("Programando analisis para " + paciente);
-			AnalisisSerologico analisisSerologico = new AnalisisSerologico(paciente);
-			asignarEnfermeroTecnico(analisisSerologico);
-		}
+		System.out.println("Introduzca dni del paciente confinado");
+		String dni = scanner.nextLine();
+		Paciente paciente = (Paciente) Persona.getPersona(dni);
+		AnalisisSerologico analisisSerologico = new AnalisisSerologico(paciente);
+		asignarEnfermeroTecnico(paciente, analisisSerologico);
 
 	}
 
 	private static void tentativaVacunas() {
-		List<Paciente> listaPacientes = Persona.obtenerPacientes();
-		for (Paciente paciente : listaPacientes) {
-			if (!paciente.isVacunaCompleta() && paciente.getVacuna() != null) {
-				System.out.println(paciente);
+		List<Persona> lista = Persona.getUsuarios();
+		for (Persona persona : lista) {
+			if (persona instanceof Paciente) {
+				Paciente paciente = (Paciente) persona;
+				if (!paciente.isVacunaCompleta() && paciente.getVacuna() != null) {
+					System.out.println(paciente);
+				}
 			}
+
 		}
 
 	}
@@ -127,13 +130,13 @@ public class Administrador extends Empleado {
 
 		switch (vacunaRecibida) {
 		case 1:
-			Pfizer.actualizarStock(cantidad);
+			Pfizer.aumentarStock(cantidad);
 			break;
 		case 2:
-			JohnsonJohnson.actualizarStock(cantidad);
+			JohnsonJohnson.aumentarStock(cantidad);
 			break;
 		case 3:
-			Moderna.actualizarStock(cantidad);
+			Moderna.aumentarStock(cantidad);
 			break;
 		default:
 			System.out.println("Error!");
@@ -154,7 +157,7 @@ public class Administrador extends Empleado {
 			if (persona instanceof Enfermero) {
 				Enfermero enfermero = (Enfermero) persona;
 
-				List<PruebaDiagnostica> pruebasEnfermero = PruebaDiagnostica.pruebasEnfermero(enfermero.getId());
+				List<PruebaDiagnostica> pruebasEnfermero = enfermero.getPruebas();
 				if (pruebasEnfermero != null) {
 					System.out.println(enfermero);
 					System.out.println("Pruebas:");
@@ -164,8 +167,7 @@ public class Administrador extends Empleado {
 					}
 				}
 
-				List<Paciente> listaPacientesVacunacionEnfermero = PruebaDiagnostica.vacunacionesPaciente
-						.get(dniUsuarioMostrar);
+				List<Paciente> listaPacientesVacunacionEnfermero = enfermero.getVacunaciones();
 				if (listaPacientesVacunacionEnfermero != null) {
 					System.out.println(enfermero);
 					System.out.println("Vacunaciones:");
@@ -173,11 +175,10 @@ public class Administrador extends Empleado {
 						System.out.println(pacienteVacunarMostrar);
 					}
 				}
-			} else if (personaVerPacientesASignados instanceof Tecnico) {
-				Tecnico tecnicoPacientesMostrar = (Tecnico) personaVerPacientesASignados;
+			} else if (persona instanceof Tecnico) {
+				Tecnico tecnicoPacientesMostrar = (Tecnico) persona;
 
-				List<PruebaDiagnostica> obtenerPruebasAsignadasTecnico = GestorPruebas
-						.obtenerPruebasAsignadasTecnico(tecnicoPacientesMostrar.getDni());
+				List<PruebaDiagnostica> obtenerPruebasAsignadasTecnico = tecnicoPacientesMostrar.getPruebas();
 				if (obtenerPruebasAsignadasTecnico != null) {
 					System.out.println(tecnicoPacientesMostrar);
 
@@ -193,9 +194,9 @@ public class Administrador extends Empleado {
 	}
 
 	private static void verPersonas() {
-		Set<String> keySetMostrarUsuarios = Persona.getUsuarios().keySet();
-		for (String dniUsuarioMostrar : keySetMostrarUsuarios) {
-			System.out.println(Persona.getUsuarios().get(dniUsuarioMostrar));
+		List<Persona> usuarios2 = Persona.getUsuarios();
+		for (Persona persona : usuarios2) {
+			System.out.println(persona);
 		}
 	}
 
@@ -203,11 +204,11 @@ public class Administrador extends Empleado {
 		Scanner scanner = new Scanner(System.in);
 
 		System.out.println("Introduzca DNI del paciente al que vacunar");
-		String dniPacienteVacunar = scanner.nextLine();
-		Paciente pacienteVacunar = (Paciente) Persona.getUsuarios().get(dniPacienteVacunar);
+		String dni = scanner.nextLine();
+		Paciente pacienteVacunar = (Paciente) Persona.getPersona(dni);
 		Vacuna vacuna = aleatorioVacuna();
 		if (vacuna != null) {
-			System.out.println("Vacunacion programada con " + vacuna);
+			System.out.println("La vacuna es" + vacuna);
 			System.out.println("Introduzca fecha primera dosis");
 			String fechaVacuna = scanner.nextLine();
 			Date fechaVacunaDate = Principal.format.parse(fechaVacuna);
@@ -235,41 +236,36 @@ public class Administrador extends Empleado {
 		Paciente paciente = (Paciente) Persona.getPersona(dniPaciente);
 		System.out.println("Tipo de prueba a relizar?");
 		System.out.println("-------------------------");
-		System.out.println("1. Prueba antigenos");
-		System.out.println("2. Test PCR");
-		System.out.println("3. Analisis Serologico");
+		System.out.println("1. Prueba rapida");
+		System.out.println("1. Prueba clasira");
+		System.out.println("3. Test PCR");
+		System.out.println("4. Analisis Serologico");
 		int opcionPrueba = Integer.parseInt(scanner.nextLine());
 		switch (opcionPrueba) {
 		case 1:
-			System.out.println("Tipo de prueba de antigenos?");
-			System.out.println("-------------------------");
-			System.out.println("1. Prueba rapida");
-			System.out.println("2. Prueba clasica");
-			int opcionPruebaAntigenos = Integer.parseInt(scanner.nextLine());
+			PruebaRapida pruebaRapida = new PruebaRapida(paciente);
 
-			if (opcionPruebaAntigenos == 1) {
-				PruebaRapida pruebaRapida = new PruebaRapida(paciente);
+			asignarEnfermeroTecnico(paciente, pruebaRapida);
 
-				asignarEnfermeroTecnico(scanner, pruebaRapida);
-
-			} else if (opcionPruebaAntigenos == 2) {
-				PruebaClasica pruebaClasica = new PruebaClasica(paciente);
-				asignarEnfermeroTecnico(scanner, pruebaClasica);
-			} else {
-				System.out.println("Opcion no valida");
-			}
 			break;
 		case 2:
-			TestPcr testPcr = new TestPcr(paciente);
-			asignarEnfermeroTecnico(scanner, testPcr);
+			PruebaClasica pruebaClasica = new PruebaClasica(paciente);
+
+			asignarEnfermeroTecnico(paciente, pruebaClasica);
+
 			break;
 		case 3:
+			TestPcr testPcr = new TestPcr(paciente);
+			asignarEnfermeroTecnico(paciente, testPcr);
+			break;
+		case 4:
 			AnalisisSerologico analisisSerologico = new AnalisisSerologico(paciente);
-			asignarEnfermeroTecnico(scanner, analisisSerologico);
+			asignarEnfermeroTecnico(paciente, analisisSerologico);
 			break;
 		default:
 			break;
 		}
+
 	}
 
 	private static void borrarPersona() {
@@ -294,7 +290,9 @@ public class Administrador extends Empleado {
 	}
 
 	private static void altaPersona() {
-		System.out.println("Que usuario desea dar de alta?");
+		Scanner scanner = new Scanner(System.in);
+
+		System.out.println("Que tipo vas a dar de alta?");
 		System.out.println("-------------------------------");
 		System.out.println("1. Paciente");
 		System.out.println("2. Enfermero");
@@ -304,34 +302,53 @@ public class Administrador extends Empleado {
 		if (opcionMenuSeleccionAlta == 1) {
 			System.out.println("Introduzca DNI del paciente");
 			String dni = scanner.nextLine();
-			System.out.println("Introduzca nombre completo del paciente");
+			System.out.println("Introduzca nombre del paciente");
 			String nombre = scanner.nextLine();
+			System.out.println("Introduzca appellidos del paciente");
+			String apellidos = scanner.nextLine();
 			System.out.println("Introduzca edad del paciente");
 			int edad = Integer.parseInt(scanner.nextLine());
-			Paciente pacienteNuevo = new Paciente(dni, nombre, edad);
+			System.out.println("Introduzca direccion del paciente");
+			String direccion = scanner.nextLine();
+			System.out.println("Introduzca telefono del paciente");
+			String telefono = scanner.nextLine();
+			Paciente pacienteNuevo = new Paciente(dni, nombre, apellidos, edad, direccion, telefono);
+
 			Persona.alta(pacienteNuevo);
 
 		} else if (opcionMenuSeleccionAlta == 2) {
 			System.out.println("Introduzca DNI del enfermero");
 			String dni = scanner.nextLine();
-			System.out.println("Introduzca nombre completo del enfermero");
+			System.out.println("Introduzca nombre del enfermero");
 			String nombre = scanner.nextLine();
-			System.out.println("Introduzca password");
-			String password = scanner.nextLine();
-			Enfermero enfermeroNuevo = new Enfermero(dni, nombre, password);
+			System.out.println("Introduzca appellidos del enfermero");
+			String apellidos = scanner.nextLine();
+			System.out.println("Introduzca edad del enfermero");
+			int edad = Integer.parseInt(scanner.nextLine());
+			System.out.println("Introduzca direccion del enfermero");
+			String direccion = scanner.nextLine();
+			System.out.println("Introduzca telefono del enfermero");
+			String telefono = scanner.nextLine();
+			Enfermero enfermeroNuevo = new Enfermero(dni, nombre, apellidos, edad, direccion, telefono);
+
 			Persona.alta(enfermeroNuevo);
 
 		} else if (opcionMenuSeleccionAlta == 3) {
 			System.out.println("Introduzca DNI del tecnico");
 			String dni = scanner.nextLine();
-			System.out.println("Introduzca nombre completo del tecnico");
+			System.out.println("Introduzca nombre del tecnico");
 			String nombre = scanner.nextLine();
-			System.out.println("Introduzca password");
-			String password = scanner.nextLine();
-			Tecnico tecnicoNuevo = new Tecnico(dni, nombre, password);
+			System.out.println("Introduzca appellidos del tecnico");
+			String apellidos = scanner.nextLine();
+			System.out.println("Introduzca edad del tecnico");
+			int edad = Integer.parseInt(scanner.nextLine());
+			System.out.println("Introduzca direccion del tecnico");
+			String direccion = scanner.nextLine();
+			System.out.println("Introduzca telefono del tecnico");
+			String telefono = scanner.nextLine();
+			Tecnico tecnicoNuevo = new Tecnico(dni, nombre, apellidos, edad, direccion, telefono);
 
 			Persona.alta(tecnicoNuevo);
-
 		} else {
 			System.out.println("Opcion invalida");
 		}
@@ -340,20 +357,16 @@ public class Administrador extends Empleado {
 	static void programarVacunacion(Paciente paciente, Date fechaVacuna, Vacuna vacuna) throws ParseException {
 		Scanner scanner = new Scanner(System.in);
 
-		if (vacuna.getNumeroDosis() == 1) {
+		if (vacuna.getDosis() == 1) {
 			paciente.setPrimeraDosis(fechaVacuna);
 			System.out.println("Introduzca DNI enfermero para vacunacion");
 			String dniEnfermeroVacunacion = scanner.nextLine();
-			Enfermero enfermeroVacunacion = (Enfermero) Persona.getUsuarios().get(dniEnfermeroVacunacion);
+			Enfermero enfermeroVacunacion = (Enfermero) Persona.getPersona(dniEnfermeroVacunacion);
+
 			paciente.setEnfermeroVacunacion(enfermeroVacunacion);
 
-			List<Paciente> listaPacientesEnfermeroVacunacion = PruebaDiagnostica.vacunacionesPaciente
-					.get(dniEnfermeroVacunacion);
-			if (listaPacientesEnfermeroVacunacion == null) {
-				listaPacientesEnfermeroVacunacion = new ArrayList<Paciente>();
-			}
-			listaPacientesEnfermeroVacunacion.add(paciente);
-			PruebaDiagnostica.vacunacionesPaciente.put(dniEnfermeroVacunacion, listaPacientesEnfermeroVacunacion);
+			enfermeroVacunacion.asignarVacuna(paciente);
+
 			actualizarStockVacunacion(vacuna);
 
 		} else {
@@ -370,18 +383,16 @@ public class Administrador extends Empleado {
 			} else {
 				paciente.setPrimeraDosis(primeraVacunaDate);
 				System.out.println("Introduzca DNI enfermero para vacunacion");
+
 				String dniEnfermeroVacunacion = scanner.nextLine();
-				Enfermero enfermeroVacunacion = (Enfermero) Persona.getUsuarios().get(dniEnfermeroVacunacion);
+				Enfermero enfermeroVacunacion = (Enfermero) Persona.getPersona(dniEnfermeroVacunacion);
+
 				paciente.setEnfermeroVacunacion(enfermeroVacunacion);
 
-				List<Paciente> listaPacientesEnfermeroVacunacion = PruebaDiagnostica.vacunacionesPaciente
-						.get(dniEnfermeroVacunacion);
-				if (listaPacientesEnfermeroVacunacion == null) {
-					listaPacientesEnfermeroVacunacion = new ArrayList<Paciente>();
-				}
-				listaPacientesEnfermeroVacunacion.add(paciente);
-				PruebaDiagnostica.vacunacionesPaciente.put(dniEnfermeroVacunacion, listaPacientesEnfermeroVacunacion);
+				enfermeroVacunacion.asignarVacuna(paciente);
+
 				actualizarStockVacunacion(vacuna);
+
 			}
 
 		}
@@ -390,53 +401,50 @@ public class Administrador extends Empleado {
 
 	private static void actualizarStockVacunacion(Vacuna vacuna) {
 		if (vacuna instanceof Pfizer) {
-			Pfizer.actualizarStockVacunaPlanificada();
+			Pfizer.quitarStock();
 
 		} else if (vacuna instanceof JohnsonJohnson) {
-			JohnsonJohnson.actualizarStockVacunaPlanificada();
+			JohnsonJohnson.quitarStock();
 
 		}
 		if (vacuna instanceof Moderna) {
-			Moderna.actualizarStockVacunaPlanificada();
+			Moderna.quitarStock();
 
 		}
 	}
 
-	static Vacuna aleatorioVacuna() {
-		Random r = new Random();
-		int valorDado = r.nextInt(3); // Entre 0 y 2.
-		if (valorDado == 0) {
+	private static Vacuna aleatorioVacuna() {
+		Random random = new Random();
+		int numero = random.nextInt(3);
+		if (numero == 0) {
 			if (Pfizer.getStock() > 0) {
 				return new Pfizer();
 			} else {
-				System.out.println("No hay suficiente stock de Pfizer");
+				System.out.println("No hay bastantes vacunas de Pfizer");
 				return null;
 			}
-		} else if (valorDado == 1) {
+		} else if (numero == 1) {
 			if (JohnsonJohnson.getStock() > 0) {
 				return new JohnsonJohnson();
 			} else {
-				System.out.println("No hay suficiente stock de Johnson&Jonson");
+				System.out.println("No hay bastantes vacunas de Johnson&Jonson");
 				return null;
 			}
-		} else if (valorDado == 2) {
+		} else if (numero == 2) {
 			if (Moderna.getStock() > 0) {
 				return new Moderna();
 			} else {
-				System.out.println("No hay suficiente stock de Moderna");
+				System.out.println("No hay bastantes vacunas de Moderna");
 				return null;
 			}
-		} else {
-			System.out.println("valor fuera de rango!! " + valorDado);
-			return null;
 		}
+		return null;
 	}
 
 	static boolean verificarGrupoPrioritarioCompleto() {
 		boolean prioritariosVacunados = true;
-		Set<String> keySet = Persona.getUsuarios().keySet();
-		for (String dni : keySet) {
-			Persona persona = Persona.getUsuarios().get(dni);
+		List<Persona> pacientes = Persona.getUsuarios();
+		for (Persona persona : pacientes) {
 			if (persona instanceof Paciente) {
 				Paciente paciente = (Paciente) persona;
 				if (paciente.getEdad() >= 65 && !paciente.isVacunaCompleta()) {
@@ -450,9 +458,8 @@ public class Administrador extends Empleado {
 
 	static boolean verificarGrupoPrioritarioPeriodo(Date fechaVacuna) {
 		boolean prioritariosVacunados = true;
-		Set<String> keySet = Persona.getUsuarios().keySet();
-		for (String dni : keySet) {
-			Persona persona = Persona.getUsuarios().get(dni);
+		List<Persona> pacientes = Persona.getUsuarios();
+		for (Persona persona : pacientes) {
 			if (persona instanceof Paciente) {
 				Paciente paciente = (Paciente) persona;
 
@@ -461,62 +468,67 @@ public class Administrador extends Empleado {
 					prioritariosVacunados = false;
 				}
 
-				// if (paciente.getEdad() >= 65 && !paciente.isVacunaCompleta()
-				// && (paciente.getVacuna() != null && paciente.getVacuna().getNumeroDosis() ==
-				// 2)
-				// && (paciente.getPrimeraDosis() != null
-				// && paciente.getPrimeraDosis().before(Calendar.getInstance().getTime()))
-				// && paciente.isPrimeraDosisAdministada() &&
-				// !paciente.isSegundaDosisAdministada()
-				// && (paciente.getSegundaDosis() != null
-				// && paciente.getSegundaDosis().before(Calendar.getInstance().getTime()))) {
-				//
-				// prioritariosVacunados = false;
-				// }
 			}
 		}
 
 		return prioritariosVacunados;
 	}
 
-	static void asignarEnfermeroTecnico(PruebaDiagnostica prueba) throws ParseException {
+	static void asignarEnfermeroTecnico(Paciente paciente, PruebaDiagnostica prueba) throws ParseException {
 
 		Scanner scanner = new Scanner(System.in);
 
 		System.out.println("Fecha de la prueba? Ej: dd-mm-aaaa");
 		String fechaPrueba = scanner.nextLine();
 		Date fechaPruebaDate = Principal.format.parse(fechaPrueba);
-		if (prueba.getPaciente().isConfinado()
-				&& prueba.getPaciente().getFechaFinConfinamiento().getTime().after(fechaPruebaDate)) {
-			System.out.println("No se puede planificar la prueba para esa fecha, el paciente esta confinado hasta "
-					+ prueba.getPaciente().getFechaFinConfinamiento());
+		if (paciente.isConfinado() && paciente.getFechaFinConfinamiento().getTime().after(fechaPruebaDate)) {
+			System.out.println("El paciente esta confinado");
 		} else {
-			prueba.setFecha(fechaPruebaDate);
-			System.out.println("Asignar Enfermero a la prueba");
-			System.out.println("-------------------------------");
-			List<Enfermero> listaEnfermerosDisponibles = PruebaDiagnostica
-					.obtenerEnfermerosDisponibles(fechaPruebaDate);
-			for (Enfermero enfermero : listaEnfermerosDisponibles) {
-				System.out.println(enfermero);
+
+			if (paciente.puedeRealizarPrueba(fechaPruebaDate)) {
+
+				prueba.setFecha(fechaPruebaDate);
+				System.out.println("Asignar Enfermero a la prueba");
+				System.out.println("-------------------------------");
+
+				System.out.println("Introduzca DNI enfermero");
+				String dniEnfermero = scanner.nextLine();
+				Enfermero enfermero = (Enfermero) Persona.getPersona(dniEnfermero);
+				if (enfermero.puedeRealizarPrueba(fechaPruebaDate)) {
+
+					System.out.println("Asignar Tecnico a la prueba");
+					System.out.println("-------------------------------");
+
+					System.out.println("Introduzca DNI tecnico");
+					String dniTecnico = scanner.nextLine();
+					Tecnico tecnico = (Tecnico) Persona.getPersona(dniTecnico);
+
+					if (tecnico.puedeRealizarPrueba(fechaPruebaDate)) {
+
+						paciente.asignarPrueba(prueba);
+						enfermero.asignarPrueba(prueba);
+						tecnico.asignarPrueba(prueba);
+
+					} else {
+						System.out.println("El tecnico tiene demasiadas pruebas esa semana");
+
+					}
+				} else {
+					System.out.println("El enfermero tiene demasiadas pruebas esa semana");
+				}
+			} else {
+				System.out.println("El pacienteno puede realizar la prueba");
+
 			}
-
-			System.out.println("Introduzca DNI enfermero");
-			String dniEnfermero = scanner.nextLine();
-			Enfermero enfermeroAsignado = (Enfermero) Persona.getUsuarios().get(dniEnfermero);
-
-			System.out.println("Asignar Tecnico a la prueba");
-			System.out.println("-------------------------------");
-			List<Tecnico> listaTecnicosDisponibles = PruebaDiagnostica.obtenerTecnicosDisponibles(fechaPruebaDate);
-			for (Tecnico tecnico : listaTecnicosDisponibles) {
-				System.out.println(tecnico);
-			}
-
-			System.out.println("Introduzca DNI tecnico");
-			String dniTecnico = scanner.nextLine();
-			Tecnico tecnicoAsignado = (Tecnico) Persona.getUsuarios().get(dniTecnico);
-
-			PruebaDiagnostica.registrarPruebaPaciente(prueba, enfermeroAsignado, tecnicoAsignado);
 		}
+
+	}
+
+	@Override
+	public String toString() {
+		return "Administrador:\ngetPassword()=" + getPassword() + "\ngetDni()=" + getDni() + "\ngetNombre()="
+				+ getNombre() + "\ngetApellidos()=" + getApellidos() + "\ngetEdad()=" + getEdad() + "\ngetDireccion()="
+				+ getDireccion() + "\ngetTelefono()=" + getTelefono();
 	}
 
 }

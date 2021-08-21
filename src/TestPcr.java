@@ -15,4 +15,11 @@ public class TestPcr extends PruebaDiagnostica {
 		super(paciente);
 	}
 
+	@Override
+	public String toString() {
+		return "TestPcr:\npositivo=" + positivo + "\nisPositivo()=" + isPositivo() + "\nisRealizada()=" + isRealizada()
+				+ "\ngetPaciente()=" + getPaciente() + "\ngetFecha()=" + getFecha() + "\ngetEnfermero()="
+				+ getEnfermero() + "\ngetTecnicoLaboratorio()=" + getTecnicoLaboratorio() + "\ngetId()=" + getId();
+	}
+
 }

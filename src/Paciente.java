@@ -1,10 +1,20 @@
-import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class Paciente extends Persona {
 
-	private int edad;
+	private List<PruebaDiagnostica> pruebas;
+
+	public Paciente(String dni, String nombre, String apellidos, int edad, String direccion, String telefono) {
+		super(dni, nombre, apellidos, edad, direccion, telefono);
+		setVacunaCompleta(false);
+		setConfinado(false);
+		pruebas = new ArrayList<PruebaDiagnostica>();
+	}
+
 	private boolean vacunaCompleta;
 	private Date primeraDosis;
 	private Date segundaDosis;
@@ -15,21 +25,6 @@ public class Paciente extends Persona {
 	private boolean confinado;
 	private Calendar fechaConfinamiento;
 	private Calendar fechaFinConfinamiento;
-
-	public Paciente(String dni, String nombre, int edad) {
-		super(dni, nombre);
-		this.setEdad(edad);
-		setVacunaCompleta(false);
-		setConfinado(false);
-	}
-
-	public int getEdad() {
-		return edad;
-	}
-
-	public void setEdad(int edad) {
-		this.edad = edad;
-	}
 
 	public boolean isVacunaCompleta() {
 		return vacunaCompleta;
@@ -95,23 +90,6 @@ public class Paciente extends Persona {
 		this.confinado = confinado;
 	}
 
-	@Override
-	public String toString() {
-		SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-		String finConfinamiento = null;
-		if (getFechaFinConfinamiento() != null) {
-
-			finConfinamiento = formatter.format(getFechaFinConfinamiento().getTime());
-		}
-
-		return "Paciente [edad=" + edad + ", vacunaCompleta=" + vacunaCompleta + ", primeraDosis=" + primeraDosis
-				+ ", segundaDosis=" + segundaDosis + ", primeraDosisAdministada=" + primeraDosisAdministada
-				+ ", segundaDosisAdministada=" + segundaDosisAdministada + ", vacuna=" + vacuna
-				+ ", enfermeroVacunacion=" + enfermeroVacunacion + ", confinado=" + confinado + ", fechaConfinamiento="
-				+ getFechaConfinamiento() + ", fechaFinConfinamiento=" + finConfinamiento + ", getDni()=" + getDni()
-				+ ", getNombre()=" + getNombre() + "]";
-	}
-
 	public Calendar getFechaFinConfinamiento() {
 		return fechaFinConfinamiento;
 	}
@@ -126,6 +104,70 @@ public class Paciente extends Persona {
 
 	public void setFechaFinConfinamiento(Calendar fechaFinConfinamiento) {
 		this.fechaFinConfinamiento = fechaFinConfinamiento;
+	}
+
+	public static void pacienteVacunado(Paciente paciente) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public boolean puedeRealizarPrueba(Date fechaPruebaDate) {
+		for (PruebaDiagnostica pruebaDiagnostica : pruebas) {
+			if (pruebaDiagnostica instanceof TestPcr) {
+
+				TestPcr testPcrAnterior = (TestPcr) pruebaDiagnostica;
+
+				long diffInMillies = Math.abs(System.currentTimeMillis() - testPcrAnterior.getFecha().getTime());
+				long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
+				if (diff < 15) {
+					System.out.println(
+							"No se puede realizar la prueba! Ultimo test PCR realizado fue: " + testPcrAnterior);
+					return false;
+				}
+
+			}
+		}
+
+		for (PruebaDiagnostica pruebaDiagnostica : pruebas) {
+			if (pruebaDiagnostica instanceof AnalisisSerologico) {
+
+				AnalisisSerologico analisisSerologicoAnterior = (AnalisisSerologico) pruebaDiagnostica;
+
+				long diffInMillies = Math
+						.abs(System.currentTimeMillis() - analisisSerologicoAnterior.getFecha().getTime());
+				long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
+				if (diff < 180) {
+					System.out.println("No se puede realizar la prueba! Ultimo Analisis serologico realizado fue: "
+							+ analisisSerologicoAnterior);
+					return false;
+				}
+
+			}
+		}
+		return true;
+	}
+
+	public void asignarPrueba(PruebaDiagnostica prueba) {
+		pruebas.add(prueba);
+	}
+
+	@Override
+	public String toString() {
+		return "Paciente:" +
+		// + "\npruebas=" + pruebas +
+				"\nvacunaCompleta=" + vacunaCompleta + "\nprimeraDosis=" + primeraDosis + "\nsegundaDosis="
+				+ segundaDosis + "\nprimeraDosisAdministada=" + primeraDosisAdministada + "\nsegundaDosisAdministada="
+				+ segundaDosisAdministada + "\nvacuna=" + vacuna + "\nenfermeroVacunacion=" + enfermeroVacunacion
+				+ "\nconfinado=" + confinado + "\nfechaConfinamiento=" + fechaConfinamiento + "\nfechaFinConfinamiento="
+				+ fechaFinConfinamiento + "\nisVacunaCompleta()=" + isVacunaCompleta() + "\ngetPrimeraDosis()="
+				+ getPrimeraDosis() + "\ngetSegundaDosis()=" + getSegundaDosis() + "\ngetVacuna()=" + getVacuna()
+				+ "\nisPrimeraDosisAdministada()=" + isPrimeraDosisAdministada() + "\nisSegundaDosisAdministada()="
+				+ isSegundaDosisAdministada()
+				// + "\ngetEnfermeroVacunacion()=" + getEnfermeroVacunacion()
+				+ "\nisConfinado()=" + isConfinado() + "\ngetFechaFinConfinamiento()=" + getFechaFinConfinamiento()
+				+ "\ngetFechaConfinamiento()=" + getFechaConfinamiento() + "\ngetDni()=" + getDni() + "\ngetNombre()="
+				+ getNombre() + "\ngetApellidos()=" + getApellidos() + "\ngetEdad()=" + getEdad() + "\ngetDireccion()="
+				+ getDireccion() + "\ngetTelefono()=" + getTelefono();
 	}
 
 }

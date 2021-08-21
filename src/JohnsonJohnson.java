@@ -1,27 +1,27 @@
 
 public class JohnsonJohnson extends Vacuna {
 
-	private static int stock = 0;
+	private static int cantidadStock = 0;
 
 	public JohnsonJohnson() {
 		super(1);
 	}
 
 	public static int getStock() {
-		return stock;
+		return cantidadStock;
 	}
 
-	public static void actualizarStockVacunaPlanificada() {
-		stock--;
+	public static void quitarStock() {
+		cantidadStock--;
 	}
 
-	public static void actualizarStock(int stockRecibido) {
-		stock += stockRecibido;
+	public static void aumentarStock(int cantidad) {
+		cantidadStock += cantidad;
 	}
 
 	@Override
 	public String toString() {
-		return "Johnson [getNumeroDosis()=" + getNumeroDosis() + "]";
+		return "JohnsonJohnson:\ngetDosis()=" + getDosis();
 	}
 
 }
