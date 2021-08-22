@@ -151,6 +151,14 @@ public class Paciente extends Persona {
 		pruebas.add(prueba);
 	}
 
+	public void actualizarPrueba(PruebaDiagnostica prueba) {
+		for (PruebaDiagnostica pruebaDiagnostica : pruebas) {
+			if (pruebaDiagnostica.equals(prueba)) {
+				pruebaDiagnostica = prueba;
+			}
+		}
+	}
+
 	@Override
 	public String toString() {
 		return "Paciente:" +

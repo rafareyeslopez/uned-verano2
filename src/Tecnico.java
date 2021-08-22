@@ -61,7 +61,8 @@ public class Tecnico extends Empleado {
 		int idPrueba = Integer.parseInt(scanner.nextLine());
 		PruebaDiagnostica prueba = pruebasTecnico.get(idPrueba);
 		if (prueba != null) {
-			Tecnico tecnico = Persona.getPersona(prueba.getTecnicoLaboratorio().getDireccion());
+			Tecnico tecnico = (Tecnico) Persona.getPersona(prueba.getTecnicoLaboratorio().getDni());
+			Paciente paciente = (Paciente) Persona.getPersona(prueba.getPaciente().getDni());
 			if (prueba instanceof PruebaRapida) {
 				PruebaRapida pruebaRapida = (PruebaRapida) prueba;
 				System.out.println(pruebaRapida);
@@ -70,11 +71,12 @@ public class Tecnico extends Empleado {
 				if (resultado.equals("P")) {
 					pruebaRapida.setResultado(true);
 					tecnico.pruebaRealizada(pruebaRapida);
-					Paciente paciente = prueba.getPaciente();
 					Persona.confinar(paciente, prueba.getFecha());
+					paciente.actualizarPrueba(pruebaRapida);
 				} else if (resultado.equals("N")) {
 					pruebaRapida.setResultado(false);
 					tecnico.pruebaRealizada(pruebaRapida);
+					paciente.actualizarPrueba(pruebaRapida);
 				} else {
 					System.out.println("Resultado no valido para prueba");
 				}
@@ -86,11 +88,12 @@ public class Tecnico extends Empleado {
 				if (resultado.equals("P")) {
 					pruebaClasica.setResultado(true);
 					tecnico.pruebaRealizada(pruebaClasica);
-					Paciente paciente = prueba.getPaciente();
 					Persona.confinar(paciente, prueba.getFecha());
+					paciente.actualizarPrueba(pruebaClasica);
 				} else if (resultado.equals("N")) {
 					pruebaClasica.setResultado(false);
 					tecnico.pruebaRealizada(pruebaClasica);
+					paciente.actualizarPrueba(pruebaClasica);
 				} else {
 					System.out.println("Resultado no valido para prueba");
 				}
@@ -101,13 +104,14 @@ public class Tecnico extends Empleado {
 				String resultado = scanner.nextLine();
 				if (resultado.equals("P")) {
 					testPcr.setPositivo(true);
-					Paciente paciente = prueba.getPaciente();
 					Persona.confinar(paciente, prueba.getFecha());
 
 					tecnico.pruebaRealizada(testPcr);
+					paciente.actualizarPrueba(testPcr);
 				} else if (resultado.equals("N")) {
 					testPcr.setPositivo(false);
 					tecnico.pruebaRealizada(testPcr);
+					paciente.actualizarPrueba(testPcr);
 				} else {
 					System.out.println("Resultado no valido para prueba");
 				}
@@ -119,6 +123,7 @@ public class Tecnico extends Empleado {
 				if (resultado >= 0 || resultado <= 10) {
 					analisisSerologico.setValorAnticuerpos(resultado);
 					tecnico.pruebaRealizada(analisisSerologico);
+					paciente.actualizarPrueba(analisisSerologico);
 				} else {
 					System.out.println("Resultado no valido para prueba");
 				}

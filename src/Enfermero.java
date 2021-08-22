@@ -67,8 +67,8 @@ public class Enfermero extends Empleado {
 		Scanner scanner = new Scanner(System.in);
 
 		System.out.println("Paciente para vacunar?");
-		int idVacunacion = Integer.parseInt(scanner.nextLine());
-		Paciente paciente = vacunasEnfermero.get(idVacunacion);
+		int dni = Integer.parseInt(scanner.nextLine());
+		Paciente paciente = getVacuna(dni);
 		System.out.println(paciente);
 		if (paciente.getVacuna() == null) {
 			System.out.println("Vacunacion no valida");
@@ -77,6 +77,7 @@ public class Enfermero extends Empleado {
 				System.out.println("Administrada unica dosis");
 				paciente.setPrimeraDosisAdministada(true);
 				paciente.setVacunaCompleta(true);
+				vacunasEnfermero.remove(paciente);
 			} else {
 				if (!paciente.isPrimeraDosisAdministada()) {
 					System.out.println("Administrada la primera dosis");
@@ -86,13 +87,12 @@ public class Enfermero extends Empleado {
 					System.out.println("Administrada la segunda dosis");
 					paciente.setSegundaDosisAdministada(true);
 					paciente.setVacunaCompleta(true);
+					vacunasEnfermero.remove(paciente);
 				}
 
 			}
-			vacunasEnfermero.set(idVacunacion, paciente);
 
-			int indexOf = Persona.usuarios.indexOf(paciente);
-			Persona.usuarios.set(indexOf, paciente);
+			Persona.actualizarPersona(paciente);
 		}
 	}
 
@@ -101,10 +101,15 @@ public class Enfermero extends Empleado {
 
 		System.out.println("Introduzca la prueba a realizar");
 		int idPrueba = Integer.parseInt(scanner.nextLine());
-		PruebaDiagnostica pruebaDiagnostica = pruebasEnfermero.get(idPrueba);
-		pruebaDiagnostica.setRealizada(true);
 
-		pruebasEnfermero.set(idPrueba, pruebaDiagnostica);
+		PruebaDiagnostica prueba = getPrueba(idPrueba);
+		Paciente paciente = (Paciente) Persona.getPersona(prueba.getPaciente().getDni());
+
+		paciente.actualizarPrueba(prueba);
+
+		pruebaRealizada(prueba);
+
+		Persona.actualizarPersona(paciente);
 
 	}
 
@@ -161,8 +166,28 @@ public class Enfermero extends Empleado {
 		return pruebasSemana < 5;
 	}
 
-	private void pruebaRealizada(PruebaRapida pruebaRapida) {
-		pruebasEnfermero.remove(pruebaRapida);
+	private PruebaDiagnostica getPrueba(int pruebaId) {
+		for (PruebaDiagnostica prueba : pruebasEnfermero) {
+			if (prueba.getId() == pruebaId) {
+				return prueba;
+			}
+		}
+		return null;
+
+	}
+
+	private Paciente getVacuna(int dni) {
+		for (Paciente paciente : vacunasEnfermero) {
+			if (paciente.getDni().equals(dni)) {
+				return paciente;
+			}
+		}
+		return null;
+
+	}
+
+	private void pruebaRealizada(PruebaDiagnostica prueba) {
+		pruebasEnfermero.remove(prueba);
 
 	}
 

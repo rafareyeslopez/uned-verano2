@@ -72,21 +72,21 @@ public abstract class Persona {
 		this.telefono = telefono;
 	}
 
-	public static void actualizarVacunacion(Paciente paciente) {
-		if (paciente.isVacunaCompleta()) {
-			PruebaDiagnostica.actualizarVacunaCompletaEnfermero(paciente);
-		} else {
-			List<Paciente> listaPacientesVacunacionEnfermero = PruebaDiagnostica.vacunacionesPaciente
-					.get(paciente.getDni());
-			for (Paciente pacienteVacunar : listaPacientesVacunacionEnfermero) {
-				if (pacienteVacunar.getDni().equals(paciente.getDni())) {
-					pacienteVacunar = paciente;
-				}
-			}
-
-		}
-
-	}
+//	public static void actualizarVacunacion(Paciente paciente) {
+//		if (paciente.isVacunaCompleta()) {
+//			PruebaDiagnostica.actualizarVacunaCompletaEnfermero(paciente);
+//		} else {
+//			List<Paciente> listaPacientesVacunacionEnfermero = PruebaDiagnostica.vacunacionesPaciente
+//					.get(paciente.getDni());
+//			for (Paciente pacienteVacunar : listaPacientesVacunacionEnfermero) {
+//				if (pacienteVacunar.getDni().equals(paciente.getDni())) {
+//					pacienteVacunar = paciente;
+//				}
+//			}
+//
+//		}
+//
+//	}
 
 	public static List<Paciente> getPacientesConfinados() {
 		List<Paciente> confinados = new ArrayList<Paciente>();
