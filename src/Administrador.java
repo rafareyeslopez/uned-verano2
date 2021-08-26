@@ -211,7 +211,7 @@ public class Administrador extends Empleado {
 			System.out.println("La vacuna es" + vacuna);
 			System.out.println("Introduzca fecha primera dosis");
 			String fechaVacuna = scanner.nextLine();
-			Date fechaVacunaDate = Principal.format.parse(fechaVacuna);
+			Date fechaVacunaDate = Clinica.format.parse(fechaVacuna);
 
 			if (pacienteVacunar.getEdad() < 65 && verificarGrupoPrioritarioCompleto()) {
 				programarVacunacion(pacienteVacunar, fechaVacunaDate, vacuna);
@@ -374,7 +374,7 @@ public class Administrador extends Empleado {
 
 			System.out.println("Introduzca fecha segunda dosis");
 			String fechaSegundaVacuna = scanner.nextLine();
-			Date segundaVacunaDate = Principal.format.parse(fechaSegundaVacuna);
+			Date segundaVacunaDate = Clinica.format.parse(fechaSegundaVacuna);
 
 			long diffInMillies = Math.abs(primeraVacunaDate.getTime() - segundaVacunaDate.getTime());
 			long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
@@ -480,7 +480,7 @@ public class Administrador extends Empleado {
 
 		System.out.println("Fecha de la prueba? Ej: dd-mm-aaaa");
 		String fechaPrueba = scanner.nextLine();
-		Date fechaPruebaDate = Principal.format.parse(fechaPrueba);
+		Date fechaPruebaDate = Clinica.format.parse(fechaPrueba);
 		if (paciente.isConfinado() && paciente.getFechaFinConfinamiento().getTime().after(fechaPruebaDate)) {
 			System.out.println("El paciente esta confinado");
 		} else {
@@ -504,8 +504,7 @@ public class Administrador extends Empleado {
 					Tecnico tecnico = (Tecnico) Persona.getPersona(dniTecnico);
 
 					if (tecnico.puedeRealizarPrueba(fechaPruebaDate)) {
-						prueba.setEnfermero(enfermero);
-						prueba.setTecnicoLaboratorio(tecnico);
+
 						paciente.asignarPrueba(prueba);
 						enfermero.asignarPrueba(prueba);
 						tecnico.asignarPrueba(prueba);

@@ -3,7 +3,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
 
-public class Principal {
+public class Clinica {
 	static String dniUsuarioActivo;
 	static SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
 
