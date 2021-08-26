@@ -1,7 +1,12 @@
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Scanner;
+
+import personas.Administrador;
+import personas.Enfermero;
+import personas.Paciente;
+import personas.Persona;
+import personas.Tecnico;
 
 public class Clinica {
 	static String dniUsuarioActivo;
@@ -32,17 +37,9 @@ public class Clinica {
 
 		// prueba vacunacion rango
 		Paciente paciente2 = new Paciente("8", "paciente2", null, 67, null, null);
-		paciente2.setVacuna(new Pfizer());
-		paciente2.setPrimeraDosisAdministada(true);
-		paciente2.setPrimeraDosis(new Date(2021, 7, 1));
-		paciente2.setSegundaDosis(new Date(2021, 7, 25));
 		Persona.alta(paciente2);
 
-		Paciente paciente3 = new Paciente("8", "paciente3", null, 80, null, null);
-		paciente3.setVacuna(new Moderna());
-		paciente3.setPrimeraDosisAdministada(true);
-		paciente3.setPrimeraDosis(new Date(2021, 7, 5));
-		paciente3.setSegundaDosis(new Date(2021, 8, 2));
+		Paciente paciente3 = new Paciente("9", "paciente3", null, 80, null, null);
 		Persona.alta(paciente3);
 
 		Administrador admin = new Administrador("0", "admin", null, 40, null, null);
