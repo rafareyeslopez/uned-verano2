@@ -504,7 +504,8 @@ public class Administrador extends Empleado {
 					Tecnico tecnico = (Tecnico) Persona.getPersona(dniTecnico);
 
 					if (tecnico.puedeRealizarPrueba(fechaPruebaDate)) {
-
+						prueba.setEnfermero(enfermero);
+						prueba.setTecnicoLaboratorio(tecnico);
 						paciente.asignarPrueba(prueba);
 						enfermero.asignarPrueba(prueba);
 						tecnico.asignarPrueba(prueba);

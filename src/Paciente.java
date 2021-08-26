@@ -161,21 +161,11 @@ public class Paciente extends Persona {
 
 	@Override
 	public String toString() {
-		return "Paciente:" +
-		// + "\npruebas=" + pruebas +
-				"\nvacunaCompleta=" + vacunaCompleta + "\nprimeraDosis=" + primeraDosis + "\nsegundaDosis="
-				+ segundaDosis + "\nprimeraDosisAdministada=" + primeraDosisAdministada + "\nsegundaDosisAdministada="
-				+ segundaDosisAdministada + "\nvacuna=" + vacuna + "\nenfermeroVacunacion=" + enfermeroVacunacion
-				+ "\nconfinado=" + confinado + "\nfechaConfinamiento=" + fechaConfinamiento + "\nfechaFinConfinamiento="
-				+ fechaFinConfinamiento + "\nisVacunaCompleta()=" + isVacunaCompleta() + "\ngetPrimeraDosis()="
-				+ getPrimeraDosis() + "\ngetSegundaDosis()=" + getSegundaDosis() + "\ngetVacuna()=" + getVacuna()
-				+ "\nisPrimeraDosisAdministada()=" + isPrimeraDosisAdministada() + "\nisSegundaDosisAdministada()="
-				+ isSegundaDosisAdministada()
-				// + "\ngetEnfermeroVacunacion()=" + getEnfermeroVacunacion()
-				+ "\nisConfinado()=" + isConfinado() + "\ngetFechaFinConfinamiento()=" + getFechaFinConfinamiento()
-				+ "\ngetFechaConfinamiento()=" + getFechaConfinamiento() + "\ngetDni()=" + getDni() + "\ngetNombre()="
-				+ getNombre() + "\ngetApellidos()=" + getApellidos() + "\ngetEdad()=" + getEdad() + "\ngetDireccion()="
-				+ getDireccion() + "\ngetTelefono()=" + getTelefono();
+		return "Paciente [pruebas=" + pruebas + ", vacunaCompleta=" + vacunaCompleta + ", primeraDosis=" + primeraDosis
+				+ ", segundaDosis=" + segundaDosis + ", primeraDosisAdministada=" + primeraDosisAdministada
+				+ ", segundaDosisAdministada=" + segundaDosisAdministada + ", vacuna=" + vacuna + ", confinado="
+				+ confinado + ", fechaConfinamiento=" + fechaConfinamiento + ", fechaFinConfinamiento="
+				+ fechaFinConfinamiento + "]";
 	}
 
 }

@@ -59,7 +59,7 @@ public class Tecnico extends Empleado {
 
 		System.out.println("Introduzca ID de la prueba a registrar");
 		int idPrueba = Integer.parseInt(scanner.nextLine());
-		PruebaDiagnostica prueba = pruebasTecnico.get(idPrueba);
+		PruebaDiagnostica prueba = getPrueba(idPrueba);
 		if (prueba != null) {
 			Tecnico tecnico = (Tecnico) Persona.getPersona(prueba.getTecnicoLaboratorio().getDni());
 			Paciente paciente = (Paciente) Persona.getPersona(prueba.getPaciente().getDni());
@@ -134,6 +134,16 @@ public class Tecnico extends Empleado {
 		}
 	}
 
+	private PruebaDiagnostica getPrueba(int pruebaId) {
+		for (PruebaDiagnostica prueba : pruebasTecnico) {
+			if (prueba.getId() == pruebaId) {
+				return prueba;
+			}
+		}
+		return null;
+
+	}
+
 	private void pruebaRealizada(PruebaDiagnostica prueba) {
 		pruebasTecnico.remove(prueba);
 
@@ -142,9 +152,7 @@ public class Tecnico extends Empleado {
 	private void verPruebasTecnico() {
 		if (pruebasTecnico != null) {
 			System.out.println("Mis pruebas a realizar:");
-			for (int i = 0; i < pruebasTecnico.size(); i++) {
-				PruebaDiagnostica pruebaDiagnostica = pruebasTecnico.get(i);
-				System.out.println("Prueba " + i);
+			for (PruebaDiagnostica pruebaDiagnostica : pruebasTecnico) {
 				System.out.println(pruebaDiagnostica);
 			}
 		}
@@ -179,10 +187,9 @@ public class Tecnico extends Empleado {
 
 	@Override
 	public String toString() {
-		return "Tecnico:\npruebasTecnico=" + pruebasTecnico + "\ngetPruebas()=" + getPruebas() + "\ngetPassword()="
-				+ getPassword() + "\ngetDni()=" + getDni() + "\ngetNombre()=" + getNombre() + "\ngetApellidos()="
-				+ getApellidos() + "\ngetEdad()=" + getEdad() + "\ngetDireccion()=" + getDireccion()
-				+ "\ngetTelefono()=" + getTelefono();
+		return "Tecnico [getPassword()=" + getPassword() + ", getDni()=" + getDni() + ", getNombre()=" + getNombre()
+				+ ", getApellidos()=" + getApellidos() + ", getEdad()=" + getEdad() + ", getDireccion()="
+				+ getDireccion() + ", getTelefono()=" + getTelefono() + "]";
 	}
 
 }

@@ -67,7 +67,7 @@ public class Enfermero extends Empleado {
 		Scanner scanner = new Scanner(System.in);
 
 		System.out.println("Paciente para vacunar?");
-		int dni = Integer.parseInt(scanner.nextLine());
+		String dni = scanner.nextLine();
 		Paciente paciente = getVacuna(dni);
 		System.out.println(paciente);
 		if (paciente.getVacuna() == null) {
@@ -119,7 +119,6 @@ public class Enfermero extends Empleado {
 			System.out.println("Mis pruebas a realizar:");
 			for (int i = 0; i < pruebasEnfermero.size(); i++) {
 				PruebaDiagnostica pruebaDiagnostica = pruebasEnfermero.get(i);
-				System.out.println("Prueba " + i);
 				System.out.println(pruebaDiagnostica);
 			}
 		}
@@ -127,7 +126,6 @@ public class Enfermero extends Empleado {
 			System.out.println("Vacunaciones:");
 			for (int i = 0; i < vacunasEnfermero.size(); i++) {
 				Paciente pacienteVacunarMostrar = vacunasEnfermero.get(i);
-				System.out.println("Vacuna " + i);
 				System.out.println(pacienteVacunarMostrar);
 			}
 		}
@@ -176,9 +174,9 @@ public class Enfermero extends Empleado {
 
 	}
 
-	private Paciente getVacuna(int dni) {
+	private Paciente getVacuna(String dni) {
 		for (Paciente paciente : vacunasEnfermero) {
-			if (paciente.getDni().equals(dni)) {
+			if (paciente.getDni() == dni) {
 				return paciente;
 			}
 		}
@@ -209,11 +207,9 @@ public class Enfermero extends Empleado {
 
 	@Override
 	public String toString() {
-		return "Enfermero:\npruebasEnfermero=" + pruebasEnfermero + "\nvacunasEnfermero=" + vacunasEnfermero
-				+ "\ngetPruebas()=" + getPruebas() + "\ngetVacunaciones()=" + getVacunaciones() + "\ngetPassword()="
-				+ getPassword() + "\ngetDni()=" + getDni() + "\ngetNombre()=" + getNombre() + "\ngetApellidos()="
-				+ getApellidos() + "\ngetEdad()=" + getEdad() + "\ngetDireccion()=" + getDireccion()
-				+ "\ngetTelefono()=" + getTelefono();
+		return "Enfermero [getPassword()=" + getPassword() + ", getDni()=" + getDni() + ", getNombre()=" + getNombre()
+				+ ", getApellidos()=" + getApellidos() + ", getEdad()=" + getEdad() + ", getDireccion()="
+				+ getDireccion() + ", getTelefono()=" + getTelefono() + "]";
 	}
 
 }
