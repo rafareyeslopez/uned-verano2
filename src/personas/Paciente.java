@@ -113,6 +113,32 @@ public class Paciente extends Persona {
 		this.fechaConfinamiento = fechaConfinamiento;
 	}
 
+	/**
+	 * Nos dice si un paciente tiene la vacunacion completa dependiendo del numero
+	 * de dosis de la vacuna
+	 */
+	public boolean pautaCompleta() {
+		if (vacuna != null) {
+			if (vacuna.getDosis() == 1) {
+				if (isPrimeraDosisPuesta()) {
+					return true;
+				} else {
+					return false;
+				}
+			} else {
+				if (isSegundaDosisPuesta()) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+		}
+
+		else {
+			return false;
+		}
+	}
+
 	public boolean puedeRealizarPcr(Calendar fecha) {
 		// Comprobamos primero los PCR
 		for (Prueba prueba : pruebas) {

@@ -132,7 +132,7 @@ public class Administrador extends Empleado {
 		// serologico
 		if (paciente.getFechaConfinamiento() != null) {
 			AnalisisSerologico analisisSerologico = new AnalisisSerologico(paciente);
-			planificarPrueba(paciente, analisisSerologico);
+			planificarPcr(paciente, analisisSerologico);
 		} else {
 			System.out.println("El paciente no esta confinado");
 		}
@@ -322,22 +322,22 @@ public class Administrador extends Empleado {
 		case 1:
 			PruebaRapida pruebaRapida = new PruebaRapida(paciente);
 
-			planificarPrueba(paciente, pruebaRapida);
+			planificarTestAntigenos(paciente, pruebaRapida);
 
 			break;
 		case 2:
 			PruebaClasica pruebaClasica = new PruebaClasica(paciente);
 
-			planificarPrueba(paciente, pruebaClasica);
+			planificarTestAntigenos(paciente, pruebaClasica);
 
 			break;
 		case 3:
 			TestPcr testPcr = new TestPcr(paciente);
-			planificarPrueba(paciente, testPcr);
+			planificarPcr(paciente, testPcr);
 			break;
 		case 4:
 			AnalisisSerologico analisisSerologico = new AnalisisSerologico(paciente);
-			planificarPrueba(paciente, analisisSerologico);
+			planificarAnalisisSerologico(paciente, analisisSerologico);
 			break;
 		default:
 			break;
@@ -345,6 +345,9 @@ public class Administrador extends Empleado {
 
 	}
 
+	/**
+	 * Borra una persona
+	 */
 	private static void borrarPersona() {
 		Scanner scanner = new Scanner(System.in);
 
@@ -353,6 +356,9 @@ public class Administrador extends Empleado {
 		Persona.baja(dniEliminar);
 	}
 
+	/**
+	 * Modifica una persona
+	 */
 	private static void editarPersona() {
 		Scanner scanner = new Scanner(System.in);
 
@@ -366,6 +372,9 @@ public class Administrador extends Empleado {
 		Persona.modificacion(usuario);
 	}
 
+	/**
+	 * Da de alta una nueva persona
+	 */
 	private static void altaPersona() {
 		Scanner scanner = new Scanner(System.in);
 
@@ -541,13 +550,15 @@ public class Administrador extends Empleado {
 			if (persona instanceof Paciente) {
 				Paciente paciente = (Paciente) persona;
 				if (paciente.getEdad() >= 65
-						&& (!paciente.isPrimeraDosisPuesta() || !paciente.isSegundaDosisPuesta())) {
+						// && (!paciente.isPrimeraDosisPuesta() || !paciente.isSegundaDosisPuesta())) {
+						&& !paciente.pautaCompleta()) {
 					return false;
 				}
 			}
 		}
 
 		return true;
+
 	}
 
 	/**
@@ -571,7 +582,10 @@ public class Administrador extends Empleado {
 		return true;
 	}
 
-	private void planificarPrueba(Paciente paciente, Prueba prueba) throws ParseException {
+	/**
+	 * Planifica un test PCR
+	 */
+	private void planificarPcr(Paciente paciente, Prueba prueba) throws ParseException {
 
 		Scanner scanner = new Scanner(System.in);
 
@@ -590,34 +604,67 @@ public class Administrador extends Empleado {
 
 			if (prueba instanceof TestPcr) {
 				TestPcr pcr = (TestPcr) prueba;
+
 				if (paciente.puedeRealizarPcr(fechaPrueba2)) {
-					if (enfermero.puedeRealizarPrueba(fechaPrueba2)) {
-
-					}
-
-				} else if (prueba instanceof AnalisisSerologico) {
-					AnalisisSerologico analisis = (AnalisisSerologico) prueba;
-					if (paciente.puedeRealizarAnalisisSerologico(fechaPrueba2)) {
-
-					}
-				}
-
-				prueba.setFecha(fechaPruebaDate);
-				System.out.println("Asignar Enfermero a la prueba");
-				System.out.println("-------------------------------");
-
-				System.out.println("Introduzca DNI enfermero");
-				String dniEnfermero = scanner.nextLine();
-				Enfermero enfermero = (Enfermero) Persona.getPersona(dniEnfermero);
-				if (enfermero.puedeRealizarPrueba(fechaPruebaDate)) {
-
-					System.out.println("Asignar Tecnico a la prueba");
-					System.out.println("-------------------------------");
-
+					System.out.println("Introduzca DNI enfermero");
+					String dniEnfermero = scanner.nextLine();
+					Enfermero enfermero = (Enfermero) Persona.getPersona(dniEnfermero);
 					System.out.println("Introduzca DNI tecnico");
 					String dniTecnico = scanner.nextLine();
 					Tecnico tecnico = (Tecnico) Persona.getPersona(dniTecnico);
 
+					if (enfermero.puedeRealizarPrueba(fechaPruebaDate)) {
+						if (tecnico.puedeRealizarPrueba(fechaPruebaDate)) {
+							prueba.setEnfermero(enfermero);
+							prueba.setTecnicoLaboratorio(tecnico);
+							prueba.setPaciente(paciente);
+							paciente.establecerPrueba(prueba);
+							enfermero.asignarPrueba(prueba);
+							tecnico.asignarPrueba(prueba);
+						} else {
+							System.out.println("Ese tenico tiene demasiadas pruebas esa semana");
+						}
+					} else {
+						System.out.println("Ese enfermero tiene demasiadas pruebas esa semana");
+
+					}
+				} else {
+					System.out.println("El paciente no puede hacerse la prueba");
+				}
+
+			}
+		}
+	}
+
+	/**
+	 * Planifica un analisis serologico
+	 */
+	private void planificarAnalisisSerologico(Paciente paciente, Prueba prueba) throws ParseException {
+
+		Scanner scanner = new Scanner(System.in);
+
+		System.out.println("Cuando se hara la prueba? Ej: dd-mm-aaaa");
+		String fechaPrueba = scanner.nextLine();
+		Date fechaPruebaDate = formatoFecha.parse(fechaPrueba);
+		Calendar fechaPrueba2 = Calendar.getInstance();
+		fechaPrueba2.setTime(fechaPruebaDate);
+
+		Calendar fechaConfinamiento = paciente.getFechaConfinamiento();
+		fechaConfinamiento.add(Calendar.DAY_OF_YEAR, 10);
+		if (fechaConfinamiento.getTime().after(fechaPruebaDate)) {
+			System.out.println("El paciente aun estara confinado");
+
+		} else {
+
+			AnalisisSerologico analisis = (AnalisisSerologico) prueba;
+			if (paciente.puedeRealizarAnalisisSerologico(fechaPrueba2)) {
+				System.out.println("Introduzca DNI enfermero");
+				String dniEnfermero = scanner.nextLine();
+				Enfermero enfermero = (Enfermero) Persona.getPersona(dniEnfermero);
+				System.out.println("Introduzca DNI tecnico");
+				String dniTecnico = scanner.nextLine();
+				Tecnico tecnico = (Tecnico) Persona.getPersona(dniTecnico);
+				if (enfermero.puedeRealizarPrueba(fechaPruebaDate)) {
 					if (tecnico.puedeRealizarPrueba(fechaPruebaDate)) {
 						prueba.setEnfermero(enfermero);
 						prueba.setTecnicoLaboratorio(tecnico);
@@ -625,18 +672,52 @@ public class Administrador extends Empleado {
 						paciente.establecerPrueba(prueba);
 						enfermero.asignarPrueba(prueba);
 						tecnico.asignarPrueba(prueba);
-
 					} else {
-						System.out.println("El tecnico tiene demasiadas pruebas esa semana");
-
+						System.out.println("Ese tenico tiene demasiadas pruebas esa semana");
 					}
 				} else {
-					System.out.println("El enfermero tiene demasiadas pruebas esa semana");
+					System.out.println("Ese enfermero tiene demasiadas pruebas esa semana");
+
 				}
 			} else {
-				System.out.println("El pacienteno puede realizar la prueba");
-
+				System.out.println("El paciente no puede hacerse la prueba");
 			}
+		}
+
+	}
+
+	/**
+	 * Planifica Test de Antigenos, bien prueba rapida o clasica
+	 */
+	private void planificarTestAntigenos(Paciente paciente, Prueba prueba) throws ParseException {
+
+		Scanner scanner = new Scanner(System.in);
+
+		System.out.println("Cuando se hara la prueba? Ej: dd-mm-aaaa");
+		String fechaPrueba = scanner.nextLine();
+		Date fechaPruebaDate = formatoFecha.parse(fechaPrueba);
+		Calendar fechaPrueba2 = Calendar.getInstance();
+		fechaPrueba2.setTime(fechaPruebaDate);
+
+		Calendar fechaConfinamiento = paciente.getFechaConfinamiento();
+		fechaConfinamiento.add(Calendar.DAY_OF_YEAR, 10);
+		if (fechaConfinamiento.getTime().after(fechaPruebaDate)) {
+			System.out.println("El paciente aun estara confinado");
+
+		} else {
+
+			System.out.println("Introduzca DNI enfermero");
+			String dniEnfermero = scanner.nextLine();
+			Enfermero enfermero = (Enfermero) Persona.getPersona(dniEnfermero);
+			System.out.println("Introduzca DNI tecnico");
+			String dniTecnico = scanner.nextLine();
+			Tecnico tecnico = (Tecnico) Persona.getPersona(dniTecnico);
+			prueba.setEnfermero(enfermero);
+			prueba.setTecnicoLaboratorio(tecnico);
+			prueba.setPaciente(paciente);
+			paciente.establecerPrueba(prueba);
+			enfermero.asignarPrueba(prueba);
+			tecnico.asignarPrueba(prueba);
 		}
 
 	}

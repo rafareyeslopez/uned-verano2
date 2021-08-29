@@ -10,27 +10,34 @@ import pruebas.Prueba;
 
 public class Enfermero extends Empleado {
 
+	/**
+	 * Lista de las pruebas a hacer por el enfermero
+	 */
+	private List<Prueba> pruebasEnfermero;
+	/**
+	 * Lista de vacunas a poner por el enfermero
+	 */
+	private List<Paciente> vacunasEnfermero;
+
 	public Enfermero(String dni, String nombre, String apellidos, int edad, String direccion, String telefono) {
 		super(dni, nombre, apellidos, edad, direccion, telefono);
 		pruebasEnfermero = new ArrayList<Prueba>();
 		vacunasEnfermero = new ArrayList<Paciente>();
 	}
 
-	private List<Prueba> pruebasEnfermero;
-	private List<Paciente> vacunasEnfermero;
-
+	/**
+	 * Muesta el menu del enfermero
+	 */
 	public void menuEnfermero() {
 		int opcion = 0;
 		do {
 			try {
-				System.out.println("MENU Enfermero");
-				System.out.println("----------------------");
-				System.out.println("Elige una opcion");
-				System.out.println("----------------------");
-				System.out.println("0. Volver");
-				System.out.println("1. Ver datos de pacientes asignados");
-				System.out.println("2. Registro de prueba");
-				System.out.println("3. Registro de vacuna");
+				System.out.println("HOLA ENFERMERO Enfermero");
+				System.out.println("*******************");
+				System.out.println("0. Salir");
+				System.out.println("1. Ver pacientes asignados");
+				System.out.println("2. Hacer prueba");
+				System.out.println("3. Vacunar");
 
 				Scanner scanner = new Scanner(System.in);
 
@@ -39,7 +46,7 @@ public class Enfermero extends Empleado {
 				switch (opcion) {
 				case 0:
 
-					System.out.println("Salir");
+					System.out.println("Sesion enfermero terminada");
 
 					break;
 
@@ -67,6 +74,9 @@ public class Enfermero extends Empleado {
 
 	}
 
+	/**
+	 * Vacuna a un paciente
+	 */
 	private void vacunar() {
 		Scanner scanner = new Scanner(System.in);
 
@@ -79,18 +89,21 @@ public class Enfermero extends Empleado {
 		} else {
 			if (paciente.getVacuna().getDosis() == 1) {
 				System.out.println("Administrada unica dosis");
-				paciente.setPrimeraDosisAdministada(true);
-				paciente.setVacunaCompleta(true);
-				vacunasEnfermero.remove(paciente);
+				paciente.setPrimeraDosisPuesta(true);
+				if (paciente.getVacuna().getDosis() == 1) {
+					vacunasEnfermero.remove(paciente);
+				}
 			} else {
-				if (!paciente.isPrimeraDosisAdministada()) {
+				if (!paciente.isPrimeraDosisPuesta()) {
 					System.out.println("Administrada la primera dosis");
-					paciente.setPrimeraDosisAdministada(true);
+					paciente.setPrimeraDosisPuesta(true);
+					if (paciente.getVacuna().getDosis() == 1) {
+						vacunasEnfermero.remove(paciente);
+					}
 
 				} else {
 					System.out.println("Administrada la segunda dosis");
-					paciente.setSegundaDosisAdministada(true);
-					paciente.setVacunaCompleta(true);
+					paciente.setSegundaDosisPuesta(true);
 					vacunasEnfermero.remove(paciente);
 				}
 
@@ -100,13 +113,17 @@ public class Enfermero extends Empleado {
 		}
 	}
 
+	/**
+	 * El enfermero hace una prueba
+	 */
 	private void hacerPrueba() {
 		Scanner scanner = new Scanner(System.in);
 
 		System.out.println("Introduzca la prueba a realizar");
-		int idPrueba = Integer.parseInt(scanner.nextLine());
+		int id = Integer.parseInt(scanner.nextLine());
 
-		Prueba prueba = getPrueba(idPrueba);
+		Prueba prueba = getPrueba(id);
+
 		Paciente paciente = (Paciente) Persona.getPersona(prueba.getPaciente().getDni());
 
 		paciente.actualizarPrueba(prueba);
@@ -117,6 +134,9 @@ public class Enfermero extends Empleado {
 
 	}
 
+	/**
+	 * Visualiza los pacientes del enfermero
+	 */
 	private void misPacientes() {
 
 		if (pruebasEnfermero != null) {
@@ -135,16 +155,22 @@ public class Enfermero extends Empleado {
 		}
 	}
 
-	public boolean puedeRealizarPrueba(Date fechaPruebaDate) {
-		int pruebasSemana = 0;
+	/**
+	 * Mira si un enfermero puede realizar una prueba en una fecha
+	 */
+	public boolean puedeRealizarPrueba(Date fechaPrueba) {
+		int contadorPruebas = 0;
+
 		for (Prueba pruebaDiagnostica : pruebasEnfermero) {
-			Calendar calendarPruebaPlanificar = Calendar.getInstance();
-			calendarPruebaPlanificar.setTime(fechaPruebaDate);
-			Calendar calendarPrueba = Calendar.getInstance();
-			calendarPrueba.setTime(pruebaDiagnostica.getFecha());
-			if (calendarPruebaPlanificar.get(Calendar.WEEK_OF_YEAR) == calendarPrueba.get(Calendar.WEEK_OF_YEAR)) {
-				pruebasSemana++;
-				if (pruebasSemana >= 5) {
+
+			Calendar fechaPrueba2 = Calendar.getInstance();
+			fechaPrueba2.setTime(fechaPrueba);
+			Calendar fechaOtraPrueba = Calendar.getInstance();
+			fechaOtraPrueba.setTime(pruebaDiagnostica.getFecha().getTime());
+
+			if (fechaPrueba2.get(Calendar.WEEK_OF_YEAR) == fechaOtraPrueba.get(Calendar.WEEK_OF_YEAR)) {
+				contadorPruebas++;
+				if (contadorPruebas == 5) {
 					return false;
 				}
 			}
@@ -153,24 +179,12 @@ public class Enfermero extends Empleado {
 		return true;
 	}
 
-	static boolean enfermeroDisponible(List<Prueba> listaPruebasEnfermero, Date fechaPrueba) {
-		int pruebasSemana = 0;
-		for (Prueba pruebaDiagnostica : listaPruebasEnfermero) {
-			Calendar calendarPruebaPlanificar = Calendar.getInstance();
-			calendarPruebaPlanificar.setTime(fechaPrueba);
-			Calendar calendarPrueba = Calendar.getInstance();
-			calendarPrueba.setTime(pruebaDiagnostica.getFecha());
-			if (calendarPruebaPlanificar.get(Calendar.WEEK_OF_YEAR) == calendarPrueba.get(Calendar.WEEK_OF_YEAR)) {
-				pruebasSemana++;
-			}
-		}
-
-		return pruebasSemana < 5;
-	}
-
-	private Prueba getPrueba(int pruebaId) {
+	/**
+	 * Busca una prueba por su id
+	 */
+	private Prueba getPrueba(int id) {
 		for (Prueba prueba : pruebasEnfermero) {
-			if (prueba.getId() == pruebaId) {
+			if (prueba.getId() == id) {
 				return prueba;
 			}
 		}
@@ -188,6 +202,9 @@ public class Enfermero extends Empleado {
 
 	}
 
+	/**
+	 * Actualiza una prueba como hecha, la borra de su lista de pruebas para hacer
+	 */
 	private void pruebaRealizada(Prueba prueba) {
 		pruebasEnfermero.remove(prueba);
 
