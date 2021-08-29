@@ -1,59 +1,92 @@
 package personas;
+
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import pruebas.AnalisisSerologico;
-import pruebas.PruebaDiagnostica;
+import pruebas.Prueba;
 import pruebas.TestPcr;
 import vacunas.Vacuna;
 
 public class Paciente extends Persona {
 
-	private List<PruebaDiagnostica> pruebas;
+	private List<Prueba> pruebas;
 
 	public Paciente(String dni, String nombre, String apellidos, int edad, String direccion, String telefono) {
 		super(dni, nombre, apellidos, edad, direccion, telefono);
-		setVacunaCompleta(false);
-		setConfinado(false);
-		pruebas = new ArrayList<PruebaDiagnostica>();
+		pruebas = new ArrayList<Prueba>();
 	}
 
-	private boolean vacunaCompleta;
-	private Date primeraDosis;
-	private Date segundaDosis;
-	private boolean primeraDosisAdministada;
-	private boolean segundaDosisAdministada;
+	/**
+	 * Fecha de la primera dosis
+	 */
+	private Calendar primeraDosis;
+	/**
+	 * Fecha de la segunda dosis
+	 */
+	private Calendar segundaDosis;
+	/**
+	 * Booleano para ver si tiene puesta la primera dosis
+	 */
+	private boolean primeraDosisPuesta;
+	/**
+	 * Booleano para ver si tiene puesta la segunda dosis
+	 *
+	 */
+	private boolean segundaDosisPuesta;
+	/**
+	 * Que vacuna se le va a poner
+	 */
 	private Vacuna vacuna;
-	private Enfermero enfermeroVacunacion;
-	private boolean confinado;
+	/**
+	 * Que enfermero el vacunara
+	 */
+	private Enfermero enfermero;
+	/**
+	 * Fecha cuando se ha confinado, o null sino esta confinado
+	 */
 	private Calendar fechaConfinamiento;
-	private Calendar fechaFinConfinamiento;
 
-	public boolean isVacunaCompleta() {
-		return vacunaCompleta;
+	public List<Prueba> getPruebas() {
+		return pruebas;
 	}
 
-	public void setVacunaCompleta(boolean vacunaCompleta) {
-		this.vacunaCompleta = vacunaCompleta;
+	public void setPruebas(List<Prueba> pruebas) {
+		this.pruebas = pruebas;
 	}
 
-	public Date getPrimeraDosis() {
+	public Calendar getPrimeraDosis() {
 		return primeraDosis;
 	}
 
-	public void setPrimeraDosis(Date primeraDosis) {
+	public void setPrimeraDosis(Calendar primeraDosis) {
 		this.primeraDosis = primeraDosis;
 	}
 
-	public Date getSegundaDosis() {
+	public Calendar getSegundaDosis() {
 		return segundaDosis;
 	}
 
-	public void setSegundaDosis(Date segundaDosis) {
+	public void setSegundaDosis(Calendar segundaDosis) {
 		this.segundaDosis = segundaDosis;
+	}
+
+	public boolean isPrimeraDosisPuesta() {
+		return primeraDosisPuesta;
+	}
+
+	public void setPrimeraDosisPuesta(boolean primeraDosisPuesta) {
+		this.primeraDosisPuesta = primeraDosisPuesta;
+	}
+
+	public boolean isSegundaDosisPuesta() {
+		return segundaDosisPuesta;
+	}
+
+	public void setSegundaDosisPuesta(boolean segundaDosisPuesta) {
+		this.segundaDosisPuesta = segundaDosisPuesta;
 	}
 
 	public Vacuna getVacuna() {
@@ -64,40 +97,12 @@ public class Paciente extends Persona {
 		this.vacuna = vacuna;
 	}
 
-	public boolean isPrimeraDosisAdministada() {
-		return primeraDosisAdministada;
+	public Enfermero getEnfermero() {
+		return enfermero;
 	}
 
-	public void setPrimeraDosisAdministada(boolean primeraDosisAdministada) {
-		this.primeraDosisAdministada = primeraDosisAdministada;
-	}
-
-	public boolean isSegundaDosisAdministada() {
-		return segundaDosisAdministada;
-	}
-
-	public void setSegundaDosisAdministada(boolean segundaDosisAdministada) {
-		this.segundaDosisAdministada = segundaDosisAdministada;
-	}
-
-	public Enfermero getEnfermeroVacunacion() {
-		return enfermeroVacunacion;
-	}
-
-	public void setEnfermeroVacunacion(Enfermero enfermeroVacunacion) {
-		this.enfermeroVacunacion = enfermeroVacunacion;
-	}
-
-	public boolean isConfinado() {
-		return confinado;
-	}
-
-	public void setConfinado(boolean confinado) {
-		this.confinado = confinado;
-	}
-
-	public Calendar getFechaFinConfinamiento() {
-		return fechaFinConfinamiento;
+	public void setEnfermero(Enfermero enfermero) {
+		this.enfermero = enfermero;
 	}
 
 	public Calendar getFechaConfinamiento() {
@@ -108,43 +113,20 @@ public class Paciente extends Persona {
 		this.fechaConfinamiento = fechaConfinamiento;
 	}
 
-	public void setFechaFinConfinamiento(Calendar fechaFinConfinamiento) {
-		this.fechaFinConfinamiento = fechaFinConfinamiento;
-	}
+	public boolean puedeRealizarPcr(Calendar fecha) {
+		// Comprobamos primero los PCR
+		for (Prueba prueba : pruebas) {
+			if (prueba instanceof TestPcr) {
 
-	public static void pacienteVacunado(Paciente paciente) {
-		// TODO Auto-generated method stub
+				TestPcr otraPrueba = (TestPcr) prueba;
 
-	}
+				// Calculamos la diferencia en dias, pasando primero a milisegudos y luego a
+				// dias
+				long milisegundos = fecha.getTimeInMillis() - otraPrueba.getFecha().getTimeInMillis();
+				long diferenciaDias = TimeUnit.MILLISECONDS.toDays(milisegundos);
 
-	public boolean puedeRealizarPrueba(Date fechaPruebaDate) {
-		for (PruebaDiagnostica pruebaDiagnostica : pruebas) {
-			if (pruebaDiagnostica instanceof TestPcr) {
-
-				TestPcr testPcrAnterior = (TestPcr) pruebaDiagnostica;
-
-				long diffInMillies = Math.abs(fechaPruebaDate.getTime() - testPcrAnterior.getFecha().getTime());
-				long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
-				if (diff < 15) {
-					System.out.println(
-							"No se puede realizar la prueba! Ultimo test PCR realizado fue: " + testPcrAnterior);
-					return false;
-				}
-
-			}
-		}
-
-		for (PruebaDiagnostica pruebaDiagnostica : pruebas) {
-			if (pruebaDiagnostica instanceof AnalisisSerologico) {
-
-				AnalisisSerologico analisisSerologicoAnterior = (AnalisisSerologico) pruebaDiagnostica;
-
-				long diffInMillies = Math
-						.abs(fechaPruebaDate.getTime() - analisisSerologicoAnterior.getFecha().getTime());
-				long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
-				if (diff < 180) {
-					System.out.println("No se puede realizar la prueba! Ultimo Analisis serologico realizado fue: "
-							+ analisisSerologicoAnterior);
+				if (diferenciaDias < 15) {
+					System.out.println("No se puede realizar test PCR porque ha hecho uno hace poco: " + otraPrueba);
 					return false;
 				}
 
@@ -153,21 +135,48 @@ public class Paciente extends Persona {
 		return true;
 	}
 
-	public void asignarPrueba(PruebaDiagnostica prueba) {
+	public boolean puedeRealizarAnalisisSerologico(Calendar fecha) {
+
+		for (Prueba prueba : pruebas) {
+			if (prueba instanceof AnalisisSerologico) {
+
+				AnalisisSerologico otraPrueba = (AnalisisSerologico) prueba;
+
+				// Calculamos la diferencia en dias, pasando primero a milisegudos y luego a
+				// dias
+				long milisegundos = fecha.getTimeInMillis() - otraPrueba.getFecha().getTimeInMillis();
+				long diferenciaDias = TimeUnit.MILLISECONDS.toDays(milisegundos);
+
+				// 6 meses son 180 dias
+				if (diferenciaDias < 180) {
+					System.out.println(
+							"No se puede realizar el analisis serologico  porque ha hecho uno hace menos de 6 meses:"
+									+ otraPrueba);
+					return false;
+				}
+
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Incluye la prueba su listado
+	 */
+	public void establecerPrueba(Prueba prueba) {
 		pruebas.add(prueba);
 	}
 
-	public void actualizarPrueba(PruebaDiagnostica prueba) {
-		for (PruebaDiagnostica pruebaDiagnostica : pruebas) {
-			if (pruebaDiagnostica.equals(prueba)) {
-				pruebaDiagnostica = prueba;
+	/**
+	 * Dada una prueba la actualiza de su listado, para ello la buscamos primero y
+	 * luego la actualizamos
+	 */
+	public void actualizarPrueba(Prueba prueba) {
+		for (Prueba pruebaLista : pruebas) {
+			if (pruebaLista.equals(prueba)) {
+				pruebaLista = prueba;
 			}
 		}
-	}
-
-	@Override
-	public String toString() {
-		return "Paciente [getDni()=" + getDni() + ", getNombre()=" + getNombre() + ", getEdad()=" + getEdad() + "]";
 	}
 
 }

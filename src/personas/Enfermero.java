@@ -6,17 +6,17 @@ import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 
-import pruebas.PruebaDiagnostica;
+import pruebas.Prueba;
 
 public class Enfermero extends Empleado {
 
 	public Enfermero(String dni, String nombre, String apellidos, int edad, String direccion, String telefono) {
 		super(dni, nombre, apellidos, edad, direccion, telefono);
-		pruebasEnfermero = new ArrayList<PruebaDiagnostica>();
+		pruebasEnfermero = new ArrayList<Prueba>();
 		vacunasEnfermero = new ArrayList<Paciente>();
 	}
 
-	private List<PruebaDiagnostica> pruebasEnfermero;
+	private List<Prueba> pruebasEnfermero;
 	private List<Paciente> vacunasEnfermero;
 
 	public void menuEnfermero() {
@@ -106,7 +106,7 @@ public class Enfermero extends Empleado {
 		System.out.println("Introduzca la prueba a realizar");
 		int idPrueba = Integer.parseInt(scanner.nextLine());
 
-		PruebaDiagnostica prueba = getPrueba(idPrueba);
+		Prueba prueba = getPrueba(idPrueba);
 		Paciente paciente = (Paciente) Persona.getPersona(prueba.getPaciente().getDni());
 
 		paciente.actualizarPrueba(prueba);
@@ -122,7 +122,7 @@ public class Enfermero extends Empleado {
 		if (pruebasEnfermero != null) {
 			System.out.println("Mis pruebas a realizar:");
 			for (int i = 0; i < pruebasEnfermero.size(); i++) {
-				PruebaDiagnostica pruebaDiagnostica = pruebasEnfermero.get(i);
+				Prueba pruebaDiagnostica = pruebasEnfermero.get(i);
 				System.out.println(pruebaDiagnostica);
 			}
 		}
@@ -137,7 +137,7 @@ public class Enfermero extends Empleado {
 
 	public boolean puedeRealizarPrueba(Date fechaPruebaDate) {
 		int pruebasSemana = 0;
-		for (PruebaDiagnostica pruebaDiagnostica : pruebasEnfermero) {
+		for (Prueba pruebaDiagnostica : pruebasEnfermero) {
 			Calendar calendarPruebaPlanificar = Calendar.getInstance();
 			calendarPruebaPlanificar.setTime(fechaPruebaDate);
 			Calendar calendarPrueba = Calendar.getInstance();
@@ -153,9 +153,9 @@ public class Enfermero extends Empleado {
 		return true;
 	}
 
-	static boolean enfermeroDisponible(List<PruebaDiagnostica> listaPruebasEnfermero, Date fechaPrueba) {
+	static boolean enfermeroDisponible(List<Prueba> listaPruebasEnfermero, Date fechaPrueba) {
 		int pruebasSemana = 0;
-		for (PruebaDiagnostica pruebaDiagnostica : listaPruebasEnfermero) {
+		for (Prueba pruebaDiagnostica : listaPruebasEnfermero) {
 			Calendar calendarPruebaPlanificar = Calendar.getInstance();
 			calendarPruebaPlanificar.setTime(fechaPrueba);
 			Calendar calendarPrueba = Calendar.getInstance();
@@ -168,8 +168,8 @@ public class Enfermero extends Empleado {
 		return pruebasSemana < 5;
 	}
 
-	private PruebaDiagnostica getPrueba(int pruebaId) {
-		for (PruebaDiagnostica prueba : pruebasEnfermero) {
+	private Prueba getPrueba(int pruebaId) {
+		for (Prueba prueba : pruebasEnfermero) {
 			if (prueba.getId() == pruebaId) {
 				return prueba;
 			}
@@ -188,12 +188,12 @@ public class Enfermero extends Empleado {
 
 	}
 
-	private void pruebaRealizada(PruebaDiagnostica prueba) {
+	private void pruebaRealizada(Prueba prueba) {
 		pruebasEnfermero.remove(prueba);
 
 	}
 
-	public void asignarPrueba(PruebaDiagnostica prueba) {
+	public void asignarPrueba(Prueba prueba) {
 		pruebasEnfermero.add(prueba);
 	}
 
@@ -201,7 +201,7 @@ public class Enfermero extends Empleado {
 		vacunasEnfermero.add(paciente);
 	}
 
-	public List<PruebaDiagnostica> getPruebas() {
+	public List<Prueba> getPruebas() {
 		return pruebasEnfermero;
 	}
 

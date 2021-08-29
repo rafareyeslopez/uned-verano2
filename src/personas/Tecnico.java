@@ -9,7 +9,7 @@ import java.util.Scanner;
 
 import pruebas.AnalisisSerologico;
 import pruebas.PruebaClasica;
-import pruebas.PruebaDiagnostica;
+import pruebas.Prueba;
 import pruebas.PruebaRapida;
 import pruebas.TestPcr;
 
@@ -17,10 +17,10 @@ public class Tecnico extends Empleado {
 
 	public Tecnico(String dni, String nombre, String apellidos, int edad, String direccion, String telefono) {
 		super(dni, nombre, apellidos, edad, direccion, telefono);
-		pruebasTecnico = new ArrayList<PruebaDiagnostica>();
+		pruebasTecnico = new ArrayList<Prueba>();
 	}
 
-	private List<PruebaDiagnostica> pruebasTecnico;
+	private List<Prueba> pruebasTecnico;
 
 	public void menuTecnico() {
 		int opcionMenuSeleccionUsuario = 0;
@@ -67,7 +67,7 @@ public class Tecnico extends Empleado {
 
 		System.out.println("Introduzca ID de la prueba a registrar");
 		int idPrueba = Integer.parseInt(scanner.nextLine());
-		PruebaDiagnostica prueba = getPrueba(idPrueba);
+		Prueba prueba = getPrueba(idPrueba);
 		if (prueba != null) {
 			Tecnico tecnico = (Tecnico) Persona.getPersona(prueba.getTecnicoLaboratorio().getDni());
 			Paciente paciente = (Paciente) Persona.getPersona(prueba.getPaciente().getDni());
@@ -142,8 +142,8 @@ public class Tecnico extends Empleado {
 		}
 	}
 
-	private PruebaDiagnostica getPrueba(int pruebaId) {
-		for (PruebaDiagnostica prueba : pruebasTecnico) {
+	private Prueba getPrueba(int pruebaId) {
+		for (Prueba prueba : pruebasTecnico) {
 			if (prueba.getId() == pruebaId) {
 				return prueba;
 			}
@@ -152,7 +152,7 @@ public class Tecnico extends Empleado {
 
 	}
 
-	private void pruebaRealizada(PruebaDiagnostica prueba) {
+	private void pruebaRealizada(Prueba prueba) {
 		pruebasTecnico.remove(prueba);
 
 	}
@@ -160,7 +160,7 @@ public class Tecnico extends Empleado {
 	private void verPruebasTecnico() {
 		if (pruebasTecnico != null) {
 			System.out.println("Mis pruebas a realizar:");
-			for (PruebaDiagnostica pruebaDiagnostica : pruebasTecnico) {
+			for (Prueba pruebaDiagnostica : pruebasTecnico) {
 				System.out.println(pruebaDiagnostica);
 			}
 		}
@@ -169,7 +169,7 @@ public class Tecnico extends Empleado {
 
 	public boolean puedeRealizarPrueba(Date fechaPruebaDate) {
 		int pruebasSemana = 0;
-		for (PruebaDiagnostica pruebaDiagnostica : pruebasTecnico) {
+		for (Prueba pruebaDiagnostica : pruebasTecnico) {
 			Calendar calendarPruebaPlanificar = Calendar.getInstance();
 			calendarPruebaPlanificar.setTime(fechaPruebaDate);
 			Calendar calendarPrueba = Calendar.getInstance();
@@ -185,11 +185,11 @@ public class Tecnico extends Empleado {
 		return true;
 	}
 
-	public void asignarPrueba(PruebaDiagnostica prueba) {
+	public void asignarPrueba(Prueba prueba) {
 		pruebasTecnico.add(prueba);
 	}
 
-	public List<PruebaDiagnostica> getPruebas() {
+	public List<Prueba> getPruebas() {
 		return pruebasTecnico;
 	}
 

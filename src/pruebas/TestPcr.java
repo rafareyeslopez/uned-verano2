@@ -1,7 +1,7 @@
 package pruebas;
 import personas.Paciente;
 
-public class TestPcr extends PruebaDiagnostica {
+public class TestPcr extends Prueba {
 
 	private boolean positivo;
 
@@ -19,7 +19,7 @@ public class TestPcr extends PruebaDiagnostica {
 
 	@Override
 	public String toString() {
-		return "TestPcr [positivo=" + positivo + ", isRealizada()=" + isRealizada() + ", getPaciente()=" + getPaciente()
+		return "TestPcr [positivo=" + positivo + ", isRealizada()=" + isHecha() + ", getPaciente()=" + getPaciente()
 				+ ", getFecha()=" + getFecha() + "]";
 	}
 

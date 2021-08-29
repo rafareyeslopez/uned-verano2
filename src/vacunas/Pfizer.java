@@ -16,7 +16,7 @@ public class Pfizer extends Vacuna {
 	}
 
 	public static void aumentarStock(int cantidad) {
-		cantidadStock += cantidad;
+		cantidadStock = cantidadStock + cantidad;
 	}
 
 	@Override

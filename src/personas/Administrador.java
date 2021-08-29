@@ -9,8 +9,8 @@ import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 import pruebas.AnalisisSerologico;
+import pruebas.Prueba;
 import pruebas.PruebaClasica;
-import pruebas.PruebaDiagnostica;
 import pruebas.PruebaRapida;
 import pruebas.TestPcr;
 import vacunas.JohnsonJohnson;
@@ -18,14 +18,23 @@ import vacunas.Moderna;
 import vacunas.Pfizer;
 import vacunas.Vacuna;
 
+/**
+ * Clase que modela al Administrador del sistema, extienda de Empleado.
+ */
 public class Administrador extends Empleado {
-
-	static SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
+	/**
+	 * Servira para dado una fecha como String leida convertirla a tipo Fecha, bien
+	 * Date o Calendar
+	 */
+	static SimpleDateFormat formatoFecha = new SimpleDateFormat("dd-MM-yyyy");
 
 	public Administrador(String dni, String nombre, String apellidos, int edad, String direccion, String telefono) {
 		super(dni, nombre, apellidos, edad, direccion, telefono);
 	}
 
+	/**
+	 * Muestra el menu del administrador
+	 */
 	public void menuAdmin() {
 		int opcion = 0;
 
@@ -38,7 +47,7 @@ public class Administrador extends Empleado {
 				System.out.println("***********************");
 				System.out.println("0. Salir");
 				System.out.println("1. Alta persona");
-				System.out.println("2. Modificar person");
+				System.out.println("2. Modificar persona");
 				System.out.println("3. Borrar persona");
 				System.out.println("4. Prueba diagnostica");
 				System.out.println("5. Planificar vacunas");
@@ -54,7 +63,7 @@ public class Administrador extends Empleado {
 				switch (opcion) {
 				case 0:
 
-					System.out.println("Salir");
+					System.out.println("Sesion administrador terminada");
 
 					break;
 
@@ -107,24 +116,44 @@ public class Administrador extends Empleado {
 		} while (opcion != 0);
 	}
 
+	/**
+	 * Gestiona los analisis serologicos para los pacientes que han estado
+	 * confinados
+	 */
 	private static void analisisConfinamiento() throws ParseException {
+
 		Scanner scanner = new Scanner(System.in);
 
 		System.out.println("Introduzca dni del paciente confinado");
 		String dni = scanner.nextLine();
 		Paciente paciente = (Paciente) Persona.getPersona(dni);
-		AnalisisSerologico analisisSerologico = new AnalisisSerologico(paciente);
-		asignarEnfermeroTecnico(paciente, analisisSerologico);
-
+		// dado un paciente que este confinado (con la fecha de confinamiento
+		// establecida) vamos a planificar para el una prueba de tipo analisis
+		// serologico
+		if (paciente.getFechaConfinamiento() != null) {
+			AnalisisSerologico analisisSerologico = new AnalisisSerologico(paciente);
+			planificarPrueba(paciente, analisisSerologico);
+		} else {
+			System.out.println("El paciente no esta confinado");
+		}
 	}
 
+	/**
+	 * Muestra las vacunas que se van a administrar a los pacientes
+	 */
 	private static void tentativaVacunas() {
 		List<Persona> lista = Persona.getUsuarios();
 		for (Persona persona : lista) {
 			if (persona instanceof Paciente) {
 				Paciente paciente = (Paciente) persona;
-				if (!paciente.isVacunaCompleta() && paciente.getVacuna() != null) {
-					System.out.println(paciente);
+				// primero miramos si tiene asginada vacuna
+				if (paciente.getVacuna() != null) {
+					// despues miramos si no tiene la primera dosis pues o bien si tiene la primera
+					// puesta y la segunda no
+					if (!paciente.isPrimeraDosisPuesta()
+							|| (paciente.isPrimeraDosisPuesta() && !paciente.isSegundaDosisPuesta())) {
+						System.out.println(paciente);
+					}
 				}
 			}
 
@@ -132,10 +161,13 @@ public class Administrador extends Empleado {
 
 	}
 
+	/**
+	 * Gestiona el stock de las vacunas
+	 */
 	private static void gestionStock() {
 		Scanner scanner = new Scanner(System.in);
 
-		System.out.println("Vacuna recibida?");
+		System.out.println("Que Vacuna hemos recibido?");
 		System.out.println("1. Pfizer");
 		System.out.println("2. Johnson&Johnson");
 		System.out.println("3. Moderna");
@@ -159,6 +191,9 @@ public class Administrador extends Empleado {
 		}
 	}
 
+	/**
+	 * Visualiza los pacientes que estan confinados
+	 */
 	private static void verConfinamiento() {
 		List<Paciente> pacientesConfinados = Persona.getPacientesConfinados();
 		for (Paciente paciente : pacientesConfinados) {
@@ -166,22 +201,29 @@ public class Administrador extends Empleado {
 		}
 	}
 
+	/**
+	 * Visualiza las pruebas asginadas a los enfermeros y tecnico y las vacunas de
+	 * los enfermeros
+	 */
 	private static void verAsignaciones() {
 		List<Persona> listaPersonas = Persona.getUsuarios();
+
 		for (Persona persona : listaPersonas) {
+			// si es un enfermero nos traeremos sus pruebas
 			if (persona instanceof Enfermero) {
 				Enfermero enfermero = (Enfermero) persona;
 
-				List<PruebaDiagnostica> pruebasEnfermero = enfermero.getPruebas();
-				if (pruebasEnfermero != null) {
+				List<Prueba> listaPruebas = enfermero.getPruebas();
+
+				if (listaPruebas != null) {
 					System.out.println(enfermero);
 					System.out.println("Pruebas:");
-					for (PruebaDiagnostica pruebaMostrar : pruebasEnfermero) {
-						System.out.println(pruebaMostrar);
+					for (Prueba prueba : listaPruebas) {
+						System.out.println(prueba);
 
 					}
 				}
-
+// TODO: por aqui sabado
 				List<Paciente> listaPacientesVacunacionEnfermero = enfermero.getVacunaciones();
 				if (listaPacientesVacunacionEnfermero != null) {
 					System.out.println(enfermero);
@@ -193,11 +235,11 @@ public class Administrador extends Empleado {
 			} else if (persona instanceof Tecnico) {
 				Tecnico tecnicoPacientesMostrar = (Tecnico) persona;
 
-				List<PruebaDiagnostica> obtenerPruebasAsignadasTecnico = tecnicoPacientesMostrar.getPruebas();
+				List<Prueba> obtenerPruebasAsignadasTecnico = tecnicoPacientesMostrar.getPruebas();
 				if (obtenerPruebasAsignadasTecnico != null) {
 					System.out.println(tecnicoPacientesMostrar);
 
-					for (PruebaDiagnostica pruebaMostrar : obtenerPruebasAsignadasTecnico) {
+					for (Prueba pruebaMostrar : obtenerPruebasAsignadasTecnico) {
 						System.out.println(pruebaMostrar);
 
 					}
@@ -226,7 +268,7 @@ public class Administrador extends Empleado {
 			System.out.println("La vacuna es" + vacuna);
 			System.out.println("Introduzca fecha primera dosis");
 			String fechaVacuna = scanner.nextLine();
-			Date fechaVacunaDate = format.parse(fechaVacuna);
+			Date fechaVacunaDate = formatoFecha.parse(fechaVacuna);
 
 			if (pacienteVacunar.getEdad() < 65 && verificarGrupoPrioritarioCompleto()) {
 				programarVacunacion(pacienteVacunar, fechaVacunaDate, vacuna);
@@ -260,22 +302,22 @@ public class Administrador extends Empleado {
 		case 1:
 			PruebaRapida pruebaRapida = new PruebaRapida(paciente);
 
-			asignarEnfermeroTecnico(paciente, pruebaRapida);
+			planificarPrueba(paciente, pruebaRapida);
 
 			break;
 		case 2:
 			PruebaClasica pruebaClasica = new PruebaClasica(paciente);
 
-			asignarEnfermeroTecnico(paciente, pruebaClasica);
+			planificarPrueba(paciente, pruebaClasica);
 
 			break;
 		case 3:
 			TestPcr testPcr = new TestPcr(paciente);
-			asignarEnfermeroTecnico(paciente, testPcr);
+			planificarPrueba(paciente, testPcr);
 			break;
 		case 4:
 			AnalisisSerologico analisisSerologico = new AnalisisSerologico(paciente);
-			asignarEnfermeroTecnico(paciente, analisisSerologico);
+			planificarPrueba(paciente, analisisSerologico);
 			break;
 		default:
 			break;
@@ -390,7 +432,7 @@ public class Administrador extends Empleado {
 
 			System.out.println("Introduzca fecha segunda dosis");
 			String fechaSegundaVacuna = scanner.nextLine();
-			Date segundaVacunaDate = format.parse(fechaSegundaVacuna);
+			Date segundaVacunaDate = formatoFecha.parse(fechaSegundaVacuna);
 
 			long diffInMillies = Math.abs(primeraVacunaDate.getTime() - segundaVacunaDate.getTime());
 			long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
@@ -491,13 +533,13 @@ public class Administrador extends Empleado {
 		return prioritariosVacunados;
 	}
 
-	static void asignarEnfermeroTecnico(Paciente paciente, PruebaDiagnostica prueba) throws ParseException {
+	static void planificarPrueba(Paciente paciente, Prueba prueba) throws ParseException {
 
 		Scanner scanner = new Scanner(System.in);
 
 		System.out.println("Fecha de la prueba? Ej: dd-mm-aaaa");
 		String fechaPrueba = scanner.nextLine();
-		Date fechaPruebaDate = format.parse(fechaPrueba);
+		Date fechaPruebaDate = formatoFecha.parse(fechaPrueba);
 		if (paciente.isConfinado() && paciente.getFechaFinConfinamiento().getTime().after(fechaPruebaDate)) {
 			System.out.println("El paciente esta confinado");
 		} else {
@@ -524,7 +566,7 @@ public class Administrador extends Empleado {
 						prueba.setEnfermero(enfermero);
 						prueba.setTecnicoLaboratorio(tecnico);
 						prueba.setPaciente(paciente);
-						paciente.asignarPrueba(prueba);
+						paciente.establecerPrueba(prueba);
 						enfermero.asignarPrueba(prueba);
 						tecnico.asignarPrueba(prueba);
 

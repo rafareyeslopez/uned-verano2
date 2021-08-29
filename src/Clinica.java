@@ -8,9 +8,16 @@ import personas.Paciente;
 import personas.Persona;
 import personas.Tecnico;
 
+/**
+ * Clase principal del programa desde donde se inicia la ejecucion
+ */
 public class Clinica {
-	static String dniUsuarioActivo;
-	static SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
+
+	/**
+	 * Servira para dado una fecha como String leida convertirla a tipo Fecha, bien
+	 * Date o Calendar
+	 */
+	static SimpleDateFormat formatoFecha = new SimpleDateFormat("dd-MM-yyyy");
 
 	public static void main(String[] args) {
 
@@ -42,82 +49,84 @@ public class Clinica {
 		Paciente paciente3 = new Paciente("9", "paciente3", null, 80, null, null);
 		Persona.alta(paciente3);
 
+		// El admiistrador ha de crearse al menos para poder acceder al sistema
 		Administrador admin = new Administrador("0", "admin", null, 40, null, null);
 		Persona.alta(admin);
 
-		int opcionMenu = -1;
+		int opcion = -1;
 
+		// Usamos un bucle do-while para el menu, de esta forma se ira mostrando tras la
+		// reailzacion de cada una de las acciones hasta que el usuario decida terminar
+		// la ejecucion
 		do {
-			opcionMenu = menuInicial(opcionMenu);
 
-		} while (opcionMenu != 0);
+			try {
+				Scanner scan = new Scanner(System.in);
 
-	}
+				System.out.println("Menu inicio");
+				System.out.println("***************************");
+				System.out.println("0. Salir");
+				System.out.println("1. Administrador");
+				System.out.println("2. Enfermero");
+				System.out.println("3. Tecnico");
 
-	private static int menuInicial(int opcionMenu) {
-		try {
-			Scanner scanner = new Scanner(System.in);
-			System.out.println("Elige una opcion");
-			System.out.println("----------------");
-			System.out.println("0. Salir");
-			System.out.println("1. Administrador");
-			System.out.println("2. Enfermero");
-			System.out.println("3. Tecnico");
+				opcion = Integer.parseInt(scan.nextLine());
 
-			opcionMenu = Integer.parseInt(scanner.nextLine());
+				switch (opcion) {
 
-			switch (opcionMenu) {
-			case 0:
+				case 0:
 
-				System.out.println("Sesion terminada");
+					System.out.println("Aplicacion cerrada");
 
-				break;
+					break;
 
-			case 1:
-				System.out.println("Introduzca ID de administrador");
-				String idAdministrador = scanner.nextLine();
-				try {
-					Administrador administrador = (Administrador) Persona.getPersona(idAdministrador);
-					administrador.menuAdmin();
+				case 1:
+					System.out.println("Introduzca ID de administrador");
+					String idAdministrador = scan.nextLine();
+					try {
+						Administrador administrador = (Administrador) Persona.getPersona(idAdministrador);
+						administrador.menuAdmin();
 
-				} catch (Exception e) {
-					System.out.println("No eres un administrador");
+					} catch (Exception e) {
+						System.out.println("No es un administrador");
+					}
+
+					break;
+				case 2:
+					System.out.println("Introduzca ID de enfermero");
+					String idEnfermero = scan.nextLine();
+					try {
+						Enfermero enfermero = (Enfermero) Persona.getPersona(idEnfermero);
+						enfermero.menuEnfermero();
+
+					} catch (Exception e) {
+						System.out.println("No es un Enfermero");
+					}
+
+					break;
+				case 3:
+					System.out.println("Introduzca ID de tecnico");
+					String idTecnico = scan.nextLine();
+					try {
+						Tecnico tecnico = (Tecnico) Persona.getPersona(idTecnico);
+						tecnico.menuTecnico();
+
+					} catch (Exception e) {
+						System.out.println("No es un Tecnico");
+					}
+
+					break;
+				default:
+
+					System.out.println("Opcion no valida");
+					break;
 				}
-
-				break;
-			case 2:
-				System.out.println("Introduzca ID de enfermero");
-				String idEnfermero = scanner.nextLine();
-				try {
-					Enfermero enfermero = (Enfermero) Persona.getPersona(idEnfermero);
-					enfermero.menuEnfermero();
-
-				} catch (Exception e) {
-					System.out.println("No eres un Enfermero");
-				}
-
-				break;
-			case 3:
-				System.out.println("Introduzca ID de tecnico");
-				String idTecnico = scanner.nextLine();
-				try {
-					Tecnico tecnico = (Tecnico) Persona.getPersona(idTecnico);
-					tecnico.menuTecnico();
-
-				} catch (Exception e) {
-					System.out.println("No eres un Enfermero");
-				}
-
-				break;
-			default:
-
-				System.out.println("Opcion no valida");
-				break;
+			} catch (Exception e) {
+				System.out.println("Error!");
 			}
-		} catch (Exception e) {
-			System.out.println("Error!");
-		}
-		return opcionMenu;
+
+		} while (opcion != 0);
+
 	}
 
 }

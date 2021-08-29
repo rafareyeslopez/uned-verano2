@@ -1,4 +1,5 @@
 package personas;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -96,7 +97,7 @@ public abstract class Persona {
 			if (persona instanceof Paciente) {
 				Paciente paciente = (Paciente) persona;
 
-				if (paciente.isConfinado()) {
+				if (paciente.getFechaConfinamiento() != null) {
 					confinados.add(paciente);
 				}
 			}

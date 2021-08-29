@@ -1,7 +1,7 @@
 package pruebas;
 import personas.Paciente;
 
-public abstract class PruebaAntigenos extends PruebaDiagnostica {
+public abstract class PruebaAntigenos extends Prueba {
 
 	private boolean resultado;
 
@@ -19,7 +19,7 @@ public abstract class PruebaAntigenos extends PruebaDiagnostica {
 
 	@Override
 	public String toString() {
-		return "PruebaAntigenos [resultado=" + resultado + ", isRealizada()=" + isRealizada() + ", getPaciente()="
+		return "PruebaAntigenos [resultado=" + resultado + ", isRealizada()=" + isHecha() + ", getPaciente()="
 				+ getPaciente() + ", getFecha()=" + getFecha() + ", getEnfermero()=" + getEnfermero()
 				+ ", getTecnicoLaboratorio()=" + getTecnicoLaboratorio() + ", getId()=" + getId() + "]";
 	}

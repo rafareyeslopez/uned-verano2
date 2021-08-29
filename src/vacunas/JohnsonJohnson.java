@@ -17,7 +17,7 @@ public class JohnsonJohnson extends Vacuna {
 	}
 
 	public static void aumentarStock(int cantidad) {
-		cantidadStock += cantidad;
+		cantidadStock = cantidadStock + cantidad;
 	}
 
 	@Override

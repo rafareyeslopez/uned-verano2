@@ -9,7 +9,7 @@ public class PruebaRapida extends PruebaAntigenos {
 
 	@Override
 	public String toString() {
-		return "PruebaRapida [isRealizada()=" + isRealizada() + ", getPaciente()=" + getPaciente() + ", getFecha()="
+		return "PruebaRapida [isRealizada()=" + isHecha() + ", getPaciente()=" + getPaciente() + ", getFecha()="
 				+ getFecha() + ", getEnfermero()=" + getEnfermero() + ", getTecnicoLaboratorio()="
 				+ getTecnicoLaboratorio() + "]";
 	}
