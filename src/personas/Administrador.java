@@ -2,9 +2,9 @@ package personas;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
@@ -111,7 +111,7 @@ public class Administrador extends Empleado {
 					break;
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				System.out.println("Error!");
 			}
 		} while (opcion != 0);
 	}
@@ -120,7 +120,7 @@ public class Administrador extends Empleado {
 	 * Gestiona los analisis serologicos para los pacientes que han estado
 	 * confinados
 	 */
-	private static void analisisConfinamiento() throws ParseException {
+	private void analisisConfinamiento() throws ParseException {
 
 		Scanner scanner = new Scanner(System.in);
 
@@ -141,7 +141,7 @@ public class Administrador extends Empleado {
 	/**
 	 * Muestra las vacunas que se van a administrar a los pacientes
 	 */
-	private static void tentativaVacunas() {
+	private void tentativaVacunas() {
 		List<Persona> lista = Persona.getUsuarios();
 		for (Persona persona : lista) {
 			if (persona instanceof Paciente) {
@@ -164,7 +164,7 @@ public class Administrador extends Empleado {
 	/**
 	 * Gestiona el stock de las vacunas
 	 */
-	private static void gestionStock() {
+	private void gestionStock() {
 		Scanner scanner = new Scanner(System.in);
 
 		System.out.println("Que Vacuna hemos recibido?");
@@ -205,7 +205,7 @@ public class Administrador extends Empleado {
 	 * Visualiza las pruebas asginadas a los enfermeros y tecnico y las vacunas de
 	 * los enfermeros
 	 */
-	private static void verAsignaciones() {
+	private void verAsignaciones() {
 		List<Persona> listaPersonas = Persona.getUsuarios();
 
 		for (Persona persona : listaPersonas) {
@@ -223,24 +223,23 @@ public class Administrador extends Empleado {
 
 					}
 				}
-// TODO: por aqui sabado
-				List<Paciente> listaPacientesVacunacionEnfermero = enfermero.getVacunaciones();
-				if (listaPacientesVacunacionEnfermero != null) {
+				List<Paciente> listaVacunas = enfermero.getVacunaciones();
+				if (listaVacunas != null) {
 					System.out.println(enfermero);
 					System.out.println("Vacunaciones:");
-					for (Paciente pacienteVacunarMostrar : listaPacientesVacunacionEnfermero) {
-						System.out.println(pacienteVacunarMostrar);
+					for (Paciente paciente : listaVacunas) {
+						System.out.println(paciente);
 					}
 				}
 			} else if (persona instanceof Tecnico) {
-				Tecnico tecnicoPacientesMostrar = (Tecnico) persona;
+				Tecnico tecnico = (Tecnico) persona;
 
-				List<Prueba> obtenerPruebasAsignadasTecnico = tecnicoPacientesMostrar.getPruebas();
-				if (obtenerPruebasAsignadasTecnico != null) {
-					System.out.println(tecnicoPacientesMostrar);
+				List<Prueba> listaPruebas = tecnico.getPruebas();
+				if (listaPruebas != null) {
+					System.out.println(tecnico);
 
-					for (Prueba pruebaMostrar : obtenerPruebasAsignadasTecnico) {
-						System.out.println(pruebaMostrar);
+					for (Prueba prueba : listaPruebas) {
+						System.out.println(prueba);
 
 					}
 				}
@@ -250,6 +249,9 @@ public class Administrador extends Empleado {
 		}
 	}
 
+	/**
+	 * Visualiza todas las personas del sistema
+	 */
 	private static void verPersonas() {
 		List<Persona> usuarios2 = Persona.getUsuarios();
 		for (Persona persona : usuarios2) {
@@ -257,48 +259,66 @@ public class Administrador extends Empleado {
 		}
 	}
 
-	private static void vacunar() throws ParseException {
+	/**
+	 * Crea una tentativa a vacunacion
+	 */
+	private void vacunar() throws ParseException {
 		Scanner scanner = new Scanner(System.in);
 
 		System.out.println("Introduzca DNI del paciente al que vacunar");
 		String dni = scanner.nextLine();
-		Paciente pacienteVacunar = (Paciente) Persona.getPersona(dni);
-		Vacuna vacuna = aleatorioVacuna();
+		Paciente paciente = (Paciente) Persona.getPersona(dni);
+
+		Vacuna vacuna = cogerVacuna();
+
 		if (vacuna != null) {
-			System.out.println("La vacuna es" + vacuna);
-			System.out.println("Introduzca fecha primera dosis");
+			System.out.println("Vamos a vacunar con " + vacuna);
+
+			System.out.println("Introducir fecha primera vacuna");
+
 			String fechaVacuna = scanner.nextLine();
-			Date fechaVacunaDate = formatoFecha.parse(fechaVacuna);
+			Date fecha = formatoFecha.parse(fechaVacuna);
+			Calendar fecha2 = Calendar.getInstance();
+			fecha2.setTime(fecha);
 
-			if (pacienteVacunar.getEdad() < 65 && verificarGrupoPrioritarioCompleto()) {
-				programarVacunacion(pacienteVacunar, fechaVacunaDate, vacuna);
-			} else if (pacienteVacunar.getEdad() < 65 && !verificarGrupoPrioritarioCompleto()
-					&& verificarGrupoPrioritarioPeriodo(fechaVacunaDate)) {
-				programarVacunacion(pacienteVacunar, fechaVacunaDate, vacuna);
+			if (paciente.getEdad() < 65) {
+				if (todosMayoresVacunados()) {
+					ponerVacuna(paciente, vacuna, fecha2);
 
-			} else if (pacienteVacunar.getEdad() >= 65) {
-				programarVacunacion(pacienteVacunar, fechaVacunaDate, vacuna);
+				} else if (mayoresEntreDosis(fecha2))
+					ponerVacuna(paciente, vacuna, fecha2);
+
+			} else if (paciente.getEdad() >= 65) {
+				ponerVacuna(paciente, vacuna, fecha2);
 			} else {
-				System.out.println("Paciente no valido para vacunacion");
+				System.out.println("Vacunacion invalida");
 			}
+		} else {
+			System.out.println("No hay bastantes vacunas");
 		}
 
 	}
 
-	private static void prueba() throws ParseException {
+	/**
+	 * Organiza una prueba
+	 */
+	private void prueba() throws ParseException {
+
 		Scanner scanner = new Scanner(System.in);
 
-		System.out.println("Introduzca DNI del paciente al que realizar la prueba diagnostica");
+		System.out.println("Introduzca DNI del paciente");
 		String dniPaciente = scanner.nextLine();
 		Paciente paciente = (Paciente) Persona.getPersona(dniPaciente);
-		System.out.println("Tipo de prueba a relizar?");
-		System.out.println("-------------------------");
+
+		System.out.println("Que prueba se va a hacera ?");
+		System.out.println("********************************");
 		System.out.println("1. Prueba rapida");
-		System.out.println("1. Prueba clasira");
+		System.out.println("1. Prueba clasica");
 		System.out.println("3. Test PCR");
 		System.out.println("4. Analisis Serologico");
-		int opcionPrueba = Integer.parseInt(scanner.nextLine());
-		switch (opcionPrueba) {
+
+		int opcion = Integer.parseInt(scanner.nextLine());
+		switch (opcion) {
 		case 1:
 			PruebaRapida pruebaRapida = new PruebaRapida(paciente);
 
@@ -411,46 +431,59 @@ public class Administrador extends Empleado {
 		}
 	}
 
-	static void programarVacunacion(Paciente paciente, Date fechaVacuna, Vacuna vacuna) throws ParseException {
+	/**
+	 * Planifica las dosis de la vacuna para el paciente
+	 */
+	private void ponerVacuna(Paciente paciente, Vacuna vacuna, Calendar fecha) throws ParseException {
+
 		Scanner scanner = new Scanner(System.in);
 
 		if (vacuna.getDosis() == 1) {
-			paciente.setPrimeraDosis(fechaVacuna);
-			System.out.println("Introduzca DNI enfermero para vacunacion");
-			String dniEnfermeroVacunacion = scanner.nextLine();
-			Enfermero enfermeroVacunacion = (Enfermero) Persona.getPersona(dniEnfermeroVacunacion);
+			paciente.setPrimeraDosis(fecha);
+			System.out.println("Introduzca el enfermero que pondra la vacuna");
 
-			paciente.setEnfermeroVacunacion(enfermeroVacunacion);
+			String dni = scanner.nextLine();
+			Enfermero enfermero = (Enfermero) Persona.getPersona(dni);
 
-			enfermeroVacunacion.asignarVacuna(paciente);
-
-			actualizarStockVacunacion(vacuna);
+			paciente.setEnfermero(enfermero);
 			paciente.setVacuna(vacuna);
 
+			enfermero.vacunar(paciente);
+
+			actualizarCantidadVacunas(vacuna);
+
 		} else {
-			Date primeraVacunaDate = fechaVacuna;
+			Calendar fechaPrimeraVacuna = fecha;
 
-			System.out.println("Introduzca fecha segunda dosis");
-			String fechaSegundaVacuna = scanner.nextLine();
-			Date segundaVacunaDate = formatoFecha.parse(fechaSegundaVacuna);
+			System.out.println("Introduzca la fecha de la segunda vacuna");
 
-			long diffInMillies = Math.abs(primeraVacunaDate.getTime() - segundaVacunaDate.getTime());
-			long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
-			if (diff < 21) {
-				System.out.println("La segunda fecha no es valida! Es menos de 21 dias");
+			String fecha2 = scanner.nextLine();
+			Date segundaVacuna = formatoFecha.parse(fecha2);
+			Calendar fecha2vacuna = Calendar.getInstance();
+			fecha2vacuna.setTime(segundaVacuna);
+
+			// Calculamos la diferencia en dias, pasando primero a milisegudos y luego a
+			// dias
+			long milisegundos = fecha.getTimeInMillis() - fecha2vacuna.getTimeInMillis();
+			long diferenciaDias = TimeUnit.MILLISECONDS.toDays(milisegundos);
+
+			if (diferenciaDias < 21) {
+				System.out.println("Hay menos de 21 dias");
 			} else {
-				paciente.setPrimeraDosis(primeraVacunaDate);
-				System.out.println("Introduzca DNI enfermero para vacunacion");
+				paciente.setPrimeraDosis(fechaPrimeraVacuna);
+				paciente.setSegundaDosis(fecha2vacuna);
 
-				String dniEnfermeroVacunacion = scanner.nextLine();
-				Enfermero enfermeroVacunacion = (Enfermero) Persona.getPersona(dniEnfermeroVacunacion);
+				System.out.println("Introduzca el enfermero que pondra la vacuna");
 
-				paciente.setEnfermeroVacunacion(enfermeroVacunacion);
+				String dni = scanner.nextLine();
+				Enfermero enfermero = (Enfermero) Persona.getPersona(dni);
 
-				enfermeroVacunacion.asignarVacuna(paciente);
-
-				actualizarStockVacunacion(vacuna);
+				paciente.setEnfermero(enfermero);
 				paciente.setVacuna(vacuna);
+
+				enfermero.vacunar(paciente);
+
+				actualizarCantidadVacunas(vacuna);
 
 			}
 
@@ -458,7 +491,11 @@ public class Administrador extends Empleado {
 
 	}
 
-	private static void actualizarStockVacunacion(Vacuna vacuna) {
+	/**
+	 * Para una vacuna le quitamos la cantidad que hemos puesto
+	 */
+	private static void actualizarCantidadVacunas(Vacuna vacuna) {
+
 		if (vacuna instanceof Pfizer) {
 			Pfizer.quitarStock();
 
@@ -472,79 +509,98 @@ public class Administrador extends Empleado {
 		}
 	}
 
-	private static Vacuna aleatorioVacuna() {
-		Random random = new Random();
-		int numero = random.nextInt(3);
-		if (numero == 0) {
+	/**
+	 * Genera una vacuna aleatoria
+	 */
+	private static Vacuna cogerVacuna() {
+
+		int aleatorio = (int) (Math.random() * 2);
+
+		if (aleatorio == 0) {
 			if (Pfizer.getStock() > 0) {
 				return new Pfizer();
-			} else {
-				System.out.println("No hay bastantes vacunas de Pfizer");
-				return null;
 			}
-		} else if (numero == 1) {
+		} else if (aleatorio == 1) {
 			if (JohnsonJohnson.getStock() > 0) {
 				return new JohnsonJohnson();
-			} else {
-				System.out.println("No hay bastantes vacunas de Johnson&Jonson");
-				return null;
 			}
-		} else if (numero == 2) {
+		} else if (aleatorio == 2) {
 			if (Moderna.getStock() > 0) {
 				return new Moderna();
-			} else {
-				System.out.println("No hay bastantes vacunas de Moderna");
-				return null;
 			}
 		}
 		return null;
 	}
 
-	static boolean verificarGrupoPrioritarioCompleto() {
-		boolean prioritariosVacunados = true;
+	/**
+	 * Mira si todos los mayores de 65 estan ya vacunados
+	 */
+	private static boolean todosMayoresVacunados() {
 		List<Persona> pacientes = Persona.getUsuarios();
 		for (Persona persona : pacientes) {
 			if (persona instanceof Paciente) {
 				Paciente paciente = (Paciente) persona;
-				if (paciente.getEdad() >= 65 && !paciente.isVacunaCompleta()) {
-					prioritariosVacunados = false;
+				if (paciente.getEdad() >= 65
+						&& (!paciente.isPrimeraDosisPuesta() || !paciente.isSegundaDosisPuesta())) {
+					return false;
 				}
 			}
 		}
 
-		return prioritariosVacunados;
+		return true;
 	}
 
-	static boolean verificarGrupoPrioritarioPeriodo(Date fechaVacuna) {
-		boolean prioritariosVacunados = true;
+	/**
+	 * Mira si a los mayores de 65 no se les puede planificar una vacunacion porque
+	 * estan en el periodo entre las 2 dosis
+	 */
+	static boolean mayoresEntreDosis(Calendar fecha) {
 		List<Persona> pacientes = Persona.getUsuarios();
 		for (Persona persona : pacientes) {
 			if (persona instanceof Paciente) {
 				Paciente paciente = (Paciente) persona;
 
-				if (paciente.getEdad() >= 65 && (paciente.getPrimeraDosis() == null
-						|| (paciente.getSegundaDosis() != null && paciente.getSegundaDosis().before(fechaVacuna)))) {
-					prioritariosVacunados = false;
+				if (paciente.getEdad() >= 65 && paciente.isPrimeraDosisPuesta() && !paciente.isSegundaDosisPuesta()
+						&& paciente.getSegundaDosis().before(fecha)) {
+					return false;
 				}
 
 			}
 		}
 
-		return prioritariosVacunados;
+		return true;
 	}
 
-	static void planificarPrueba(Paciente paciente, Prueba prueba) throws ParseException {
+	private void planificarPrueba(Paciente paciente, Prueba prueba) throws ParseException {
 
 		Scanner scanner = new Scanner(System.in);
 
-		System.out.println("Fecha de la prueba? Ej: dd-mm-aaaa");
+		System.out.println("Cuando se hara la prueba? Ej: dd-mm-aaaa");
 		String fechaPrueba = scanner.nextLine();
 		Date fechaPruebaDate = formatoFecha.parse(fechaPrueba);
-		if (paciente.isConfinado() && paciente.getFechaFinConfinamiento().getTime().after(fechaPruebaDate)) {
-			System.out.println("El paciente esta confinado");
+		Calendar fechaPrueba2 = Calendar.getInstance();
+		fechaPrueba2.setTime(fechaPruebaDate);
+
+		Calendar fechaConfinamiento = paciente.getFechaConfinamiento();
+		fechaConfinamiento.add(Calendar.DAY_OF_YEAR, 10);
+		if (fechaConfinamiento.getTime().after(fechaPruebaDate)) {
+			System.out.println("El paciente aun estara confinado");
+
 		} else {
 
-			if (paciente.puedeRealizarPrueba(fechaPruebaDate)) {
+			if (prueba instanceof TestPcr) {
+				TestPcr pcr = (TestPcr) prueba;
+				if (paciente.puedeRealizarPcr(fechaPrueba2)) {
+					if (enfermero.puedeRealizarPrueba(fechaPrueba2)) {
+
+					}
+
+				} else if (prueba instanceof AnalisisSerologico) {
+					AnalisisSerologico analisis = (AnalisisSerologico) prueba;
+					if (paciente.puedeRealizarAnalisisSerologico(fechaPrueba2)) {
+
+					}
+				}
 
 				prueba.setFecha(fechaPruebaDate);
 				System.out.println("Asignar Enfermero a la prueba");

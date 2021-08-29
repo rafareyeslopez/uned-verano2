@@ -197,7 +197,7 @@ public class Enfermero extends Empleado {
 		pruebasEnfermero.add(prueba);
 	}
 
-	public void asignarVacuna(Paciente paciente) {
+	public void vacunar(Paciente paciente) {
 		vacunasEnfermero.add(paciente);
 	}
 
