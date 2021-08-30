@@ -32,10 +32,10 @@ public class Enfermero extends Empleado {
 		int opcion = 0;
 		do {
 			try {
-				System.out.println("HOLA ENFERMERO Enfermero");
+				System.out.println("HOLA ENFERMERO");
 				System.out.println("*******************");
 				System.out.println("0. Salir");
-				System.out.println("1. Ver pacientes asignados");
+				System.out.println("1. Ver pacientes");
 				System.out.println("2. Hacer prueba");
 				System.out.println("3. Vacunar");
 
@@ -192,6 +192,9 @@ public class Enfermero extends Empleado {
 
 	}
 
+	/**
+	 * Obtiene el paciente a vacunar
+	 */
 	private Paciente getVacuna(String dni) {
 		for (Paciente paciente : vacunasEnfermero) {
 			if (paciente.getDni() == dni) {
@@ -210,18 +213,30 @@ public class Enfermero extends Empleado {
 
 	}
 
+	/**
+	 * Establece una nueva prueba a realizar al enfermero
+	 */
 	public void asignarPrueba(Prueba prueba) {
 		pruebasEnfermero.add(prueba);
 	}
 
+	/**
+	 * Establece una nueva vacuna a poner para el enfemero
+	 */
 	public void vacunar(Paciente paciente) {
 		vacunasEnfermero.add(paciente);
 	}
 
+	/**
+	 * Obtiene las pruebas a realizar por el enfermero
+	 */
 	public List<Prueba> getPruebas() {
 		return pruebasEnfermero;
 	}
 
+	/**
+	 * Obtiene las vacunas a poner por el enfermero urn
+	 */
 	public List<Paciente> getVacunaciones() {
 		return vacunasEnfermero;
 	}

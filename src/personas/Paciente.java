@@ -12,6 +12,9 @@ import vacunas.Vacuna;
 
 public class Paciente extends Persona {
 
+	/**
+	 * Lista de pruebas del paciente
+	 */
 	private List<Prueba> pruebas;
 
 	public Paciente(String dni, String nombre, String apellidos, int edad, String direccion, String telefono) {
@@ -41,13 +44,18 @@ public class Paciente extends Persona {
 	 */
 	private Vacuna vacuna;
 	/**
-	 * Que enfermero el vacunara
+	 * Que enfermero pone la vacuna
 	 */
 	private Enfermero enfermero;
 	/**
 	 * Fecha cuando se ha confinado, o null sino esta confinado
 	 */
 	private Calendar fechaConfinamiento;
+
+	/**
+	 * Esta confinado o no
+	 */
+	private boolean confinado;
 
 	public List<Prueba> getPruebas() {
 		return pruebas;
@@ -139,6 +147,9 @@ public class Paciente extends Persona {
 		}
 	}
 
+	/**
+	 * Nos dice si el paciente puede hacer el test PCR
+	 */
 	public boolean puedeRealizarPcr(Calendar fecha) {
 		// Comprobamos primero los PCR
 		for (Prueba prueba : pruebas) {
@@ -161,6 +172,9 @@ public class Paciente extends Persona {
 		return true;
 	}
 
+	/**
+	 * Nos dice si el paciente puede hacer el analisis serologico
+	 */
 	public boolean puedeRealizarAnalisisSerologico(Calendar fecha) {
 
 		for (Prueba prueba : pruebas) {
@@ -203,6 +217,14 @@ public class Paciente extends Persona {
 				pruebaLista = prueba;
 			}
 		}
+	}
+
+	public boolean isConfinado() {
+		return confinado;
+	}
+
+	public void setConfinado(boolean confinado) {
+		this.confinado = confinado;
 	}
 
 }

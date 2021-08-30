@@ -7,6 +7,9 @@ import java.util.List;
 
 public abstract class Persona {
 
+	/**
+	 * La lista de los diferentes usuarios
+	 */
 	static List<Persona> usuarios = new ArrayList<Persona>();
 
 	private String dni;
@@ -74,22 +77,9 @@ public abstract class Persona {
 		this.telefono = telefono;
 	}
 
-//	public static void actualizarVacunacion(Paciente paciente) {
-//		if (paciente.isVacunaCompleta()) {
-//			PruebaDiagnostica.actualizarVacunaCompletaEnfermero(paciente);
-//		} else {
-//			List<Paciente> listaPacientesVacunacionEnfermero = PruebaDiagnostica.vacunacionesPaciente
-//					.get(paciente.getDni());
-//			for (Paciente pacienteVacunar : listaPacientesVacunacionEnfermero) {
-//				if (pacienteVacunar.getDni().equals(paciente.getDni())) {
-//					pacienteVacunar = paciente;
-//				}
-//			}
-//
-//		}
-//
-//	}
-
+	/**
+	 * Obtiene la lista de los pacientes confinados
+	 */
 	public static List<Paciente> getPacientesConfinados() {
 		List<Paciente> confinados = new ArrayList<Paciente>();
 		List<Persona> lista = Persona.getUsuarios();
@@ -97,7 +87,7 @@ public abstract class Persona {
 			if (persona instanceof Paciente) {
 				Paciente paciente = (Paciente) persona;
 
-				if (paciente.getFechaConfinamiento() != null) {
+				if (paciente.isConfinado()) {
 					confinados.add(paciente);
 				}
 			}
