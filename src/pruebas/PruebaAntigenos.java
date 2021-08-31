@@ -1,27 +1,21 @@
 package pruebas;
+
 import personas.Paciente;
 
 public abstract class PruebaAntigenos extends Prueba {
 
-	private boolean resultado;
+	private boolean positivo;
 
 	public PruebaAntigenos(Paciente paciente) {
 		super(paciente);
 	}
 
-	public boolean isResultado() {
-		return resultado;
+	public boolean isPositivo() {
+		return positivo;
 	}
 
-	public void setResultado(boolean resultado) {
-		this.resultado = resultado;
-	}
-
-	@Override
-	public String toString() {
-		return "PruebaAntigenos [resultado=" + resultado + ", isRealizada()=" + isHecha() + ", getPaciente()="
-				+ getPaciente() + ", getFecha()=" + getFecha() + ", getEnfermero()=" + getEnfermero()
-				+ ", getTecnicoLaboratorio()=" + getTecnicoLaboratorio() + ", getId()=" + getId() + "]";
+	public void setPositivo(boolean positivo) {
+		this.positivo = positivo;
 	}
 
 }

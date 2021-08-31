@@ -1,6 +1,7 @@
 package personas;
 
 public abstract class Empleado extends Persona {
+	// TODO: borrar password
 	private String password;
 
 	public Empleado(String dni, String nombre, String apellidos, int edad, String direccion, String telefono) {

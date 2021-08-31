@@ -21,7 +21,7 @@ public class Pfizer extends Vacuna {
 
 	@Override
 	public String toString() {
-		return "Pfizer:\ngetDosis()=" + getDosis();
+		return "Pfizer [getDosis()=" + getDosis() + "stock=" + cantidadStock + "]";
 	}
 
 }

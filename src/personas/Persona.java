@@ -2,7 +2,6 @@ package personas;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 public abstract class Persona {
@@ -95,23 +94,26 @@ public abstract class Persona {
 		return confinados;
 	}
 
-	public static void confinar(Paciente paciente, Date date) {
+	/**
+	 * Confina a un paciente
+	 */
+	public static void confinar(Paciente paciente, Calendar fecha) {
 		paciente.setConfinado(true);
-		Calendar fechaConfinamiento = Calendar.getInstance();
-		fechaConfinamiento.setTime(date);
-		paciente.setFechaConfinamiento(fechaConfinamiento);
+		paciente.setFechaConfinamiento(fecha);
 		actualizarPersona(paciente);
 	}
 
+	/**
+	 * Dada una persona la actualiza en la lista
+	 */
 	public static void actualizarPersona(Persona personaActualizada) {
-		for (Persona persona : usuarios) {
-			if (persona.equals(personaActualizada)) {
-				persona = personaActualizada;
-			}
-		}
+		modificacion(personaActualizada);
 
 	}
 
+	/**
+	 * Dado un dni devuelve la persona
+	 */
 	public static Persona getPersona(String dni) {
 		for (Persona persona : usuarios) {
 			if (persona.getDni().equals(dni)) {
@@ -122,23 +124,35 @@ public abstract class Persona {
 
 	}
 
+	/**
+	 * Elimina a una persona
+	 */
 	public static void baja(String dni) {
 		Persona persona = getPersona(dni);
 		usuarios.remove(persona);
 
 	}
 
+	/**
+	 * Elimina a una persona
+	 */
 	public static void modificacion(Persona persona) {
 		baja(persona.getDni());
 		usuarios.add(persona);
 
 	}
 
+	/**
+	 * Da de alta a una persona
+	 */
 	public static void alta(Persona persona) {
 		usuarios.add(persona);
 
 	}
 
+	/**
+	 * Devuelve la lista de las personas
+	 */
 	public static List<Persona> getUsuarios() {
 		return usuarios;
 	}
@@ -151,6 +165,9 @@ public abstract class Persona {
 		return result;
 	}
 
+	/**
+	 * Dos personas son iguales si tienen el mismo dni
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

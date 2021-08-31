@@ -1,4 +1,5 @@
 package pruebas;
+
 import personas.Paciente;
 
 public class PruebaClasica extends PruebaAntigenos {
@@ -9,9 +10,9 @@ public class PruebaClasica extends PruebaAntigenos {
 
 	@Override
 	public String toString() {
-		return "PruebaClasica [isResultado()=" + isResultado() + ", isRealizada()=" + isHecha() + ", getPaciente()="
-				+ getPaciente().getDni() + ", getFecha()=" + getFecha() + ", getEnfermero()=" + getEnfermero()
-				+ ", getTecnicoLaboratorio()=" + getTecnicoLaboratorio() + "]";
+		return "PruebaClasica [isPositivo()=" + isPositivo() + ", isHecha()=" + isHecha() + ", getPaciente()="
+				+ getPaciente().getDni() + ", getFecha()=" + getFecha() + ", getEnfermero()=" + getEnfermero().getDni()
+				+ ", getTecnicoLaboratorio()=" + getTecnicoLaboratorio().getDni() + ", getId()=" + getId() + "]";
 	}
 
 }

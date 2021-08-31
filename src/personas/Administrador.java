@@ -55,7 +55,7 @@ public class Administrador extends Empleado {
 				System.out.println("7. Ver pacientes asignados");
 				System.out.println("8. Ver pacientes confinados");
 				System.out.println("9. Programacion pruebas serologicas confinamiento");
-				System.out.println("10. Gestion tock de vacunas");
+				System.out.println("10. Gestion stock de vacunas");
 				System.out.println("11. Tentativa a vacunas");
 
 				opcion = Integer.parseInt(scan.nextLine());
@@ -130,9 +130,9 @@ public class Administrador extends Empleado {
 		// dado un paciente que este confinado (con la fecha de confinamiento
 		// establecida) vamos a planificar para el una prueba de tipo analisis
 		// serologico
-		if (paciente.getFechaConfinamiento() != null) {
+		if (paciente.isConfinado()) {
 			AnalisisSerologico analisisSerologico = new AnalisisSerologico(paciente);
-			planificarPcr(paciente, analisisSerologico);
+			planificarAnalisisSerologico(paciente, analisisSerologico);
 		} else {
 			System.out.println("El paciente no esta confinado");
 		}
@@ -285,8 +285,12 @@ public class Administrador extends Empleado {
 				if (todosMayoresVacunados()) {
 					ponerVacuna(paciente, vacuna, fecha2);
 
-				} else if (mayoresEntreDosis(fecha2))
+				} else if (mayoresEntreDosis(fecha2)) {
 					ponerVacuna(paciente, vacuna, fecha2);
+				} else {
+					System.out.println(
+							"Aun no se puede vacunar al paciente, hay otros del grupo prioritario que van antes");
+				}
 
 			} else if (paciente.getEdad() >= 65) {
 				ponerVacuna(paciente, vacuna, fecha2);
@@ -476,7 +480,7 @@ public class Administrador extends Empleado {
 			long milisegundos = fecha.getTimeInMillis() - fecha2vacuna.getTimeInMillis();
 			long diferenciaDias = TimeUnit.MILLISECONDS.toDays(milisegundos);
 
-			if (diferenciaDias < 21) {
+			if (Math.abs(diferenciaDias) < 21) {
 				System.out.println("Hay menos de 21 dias");
 			} else {
 				paciente.setPrimeraDosis(fechaPrimeraVacuna);
@@ -571,15 +575,20 @@ public class Administrador extends Empleado {
 			if (persona instanceof Paciente) {
 				Paciente paciente = (Paciente) persona;
 
-				if (paciente.getEdad() >= 65 && paciente.isPrimeraDosisPuesta() && !paciente.isSegundaDosisPuesta()
-						&& paciente.getSegundaDosis().before(fecha)) {
-					return false;
-				}
+				if (paciente.getEdad() >= 65) {
+					if (!paciente.isPrimeraDosisPuesta()) {
+						return false;
+					} else if (paciente.isPrimeraDosisPuesta() && paciente.getSegundaDosis() != null
+							&& !paciente.isSegundaDosisPuesta() && paciente.getSegundaDosis().before(fecha)) {
+						return false;
+					}
 
+				}
 			}
 		}
 
 		return true;
+
 	}
 
 	/**
@@ -589,6 +598,8 @@ public class Administrador extends Empleado {
 
 		Scanner scanner = new Scanner(System.in);
 
+		boolean fechaValida = true;
+
 		System.out.println("Cuando se hara la prueba? Ej: dd-mm-aaaa");
 		String fechaPrueba = scanner.nextLine();
 		Date fechaPruebaDate = formatoFecha.parse(fechaPrueba);
@@ -596,12 +607,20 @@ public class Administrador extends Empleado {
 		fechaPrueba2.setTime(fechaPruebaDate);
 
 		Calendar fechaConfinamiento = paciente.getFechaConfinamiento();
-		fechaConfinamiento.add(Calendar.DAY_OF_YEAR, 10);
-		if (fechaConfinamiento.getTime().after(fechaPruebaDate)) {
-			System.out.println("El paciente aun estara confinado");
+		if (fechaConfinamiento != null) {
+			fechaConfinamiento.add(Calendar.DAY_OF_YEAR, 10);
+			if (fechaConfinamiento.getTime().after(fechaPruebaDate)) {
+				System.out.println("El paciente aun estara confinado");
+				fechaValida = false;
 
+			} else {
+				fechaValida = true;
+			}
 		} else {
+			fechaValida = true;
+		}
 
+		if (fechaValida) {
 			if (prueba instanceof TestPcr) {
 				TestPcr pcr = (TestPcr) prueba;
 
@@ -618,6 +637,7 @@ public class Administrador extends Empleado {
 							prueba.setEnfermero(enfermero);
 							prueba.setTecnicoLaboratorio(tecnico);
 							prueba.setPaciente(paciente);
+							prueba.setFecha(fechaPrueba2);
 							paciente.establecerPrueba(prueba);
 							enfermero.asignarPrueba(prueba);
 							tecnico.asignarPrueba(prueba);
@@ -634,6 +654,7 @@ public class Administrador extends Empleado {
 
 			}
 		}
+
 	}
 
 	/**
@@ -643,18 +664,28 @@ public class Administrador extends Empleado {
 
 		Scanner scanner = new Scanner(System.in);
 
+		boolean fechaValida = true;
+
 		System.out.println("Cuando se hara la prueba? Ej: dd-mm-aaaa");
 		String fechaPrueba = scanner.nextLine();
 		Date fechaPruebaDate = formatoFecha.parse(fechaPrueba);
 		Calendar fechaPrueba2 = Calendar.getInstance();
 		fechaPrueba2.setTime(fechaPruebaDate);
-
 		Calendar fechaConfinamiento = paciente.getFechaConfinamiento();
-		fechaConfinamiento.add(Calendar.DAY_OF_YEAR, 10);
-		if (fechaConfinamiento.getTime().after(fechaPruebaDate)) {
-			System.out.println("El paciente aun estara confinado");
+		if (fechaConfinamiento != null) {
+			fechaConfinamiento.add(Calendar.DAY_OF_YEAR, 10);
+			if (fechaConfinamiento.getTime().after(fechaPruebaDate)) {
+				System.out.println("El paciente aun estara confinado");
+				fechaValida = false;
 
+			} else {
+				fechaValida = true;
+			}
 		} else {
+			fechaValida = true;
+		}
+
+		if (fechaValida) {
 
 			AnalisisSerologico analisis = (AnalisisSerologico) prueba;
 			if (paciente.puedeRealizarAnalisisSerologico(fechaPrueba2)) {
@@ -669,6 +700,7 @@ public class Administrador extends Empleado {
 						prueba.setEnfermero(enfermero);
 						prueba.setTecnicoLaboratorio(tecnico);
 						prueba.setPaciente(paciente);
+						prueba.setFecha(fechaPrueba2);
 						paciente.establecerPrueba(prueba);
 						enfermero.asignarPrueba(prueba);
 						tecnico.asignarPrueba(prueba);
@@ -692,6 +724,7 @@ public class Administrador extends Empleado {
 	private void planificarTestAntigenos(Paciente paciente, Prueba prueba) throws ParseException {
 
 		Scanner scanner = new Scanner(System.in);
+		boolean fechaValida = true;
 
 		System.out.println("Cuando se hara la prueba? Ej: dd-mm-aaaa");
 		String fechaPrueba = scanner.nextLine();
@@ -700,11 +733,19 @@ public class Administrador extends Empleado {
 		fechaPrueba2.setTime(fechaPruebaDate);
 
 		Calendar fechaConfinamiento = paciente.getFechaConfinamiento();
-		fechaConfinamiento.add(Calendar.DAY_OF_YEAR, 10);
-		if (fechaConfinamiento.getTime().after(fechaPruebaDate)) {
-			System.out.println("El paciente aun estara confinado");
+		if (fechaConfinamiento != null) {
+			fechaConfinamiento.add(Calendar.DAY_OF_YEAR, 10);
+			if (fechaConfinamiento.getTime().after(fechaPruebaDate)) {
+				System.out.println("El paciente aun estara confinado");
+				fechaValida = false;
 
+			} else {
+				fechaValida = true;
+			}
 		} else {
+			fechaValida = true;
+		}
+		if (fechaValida) {
 
 			System.out.println("Introduzca DNI enfermero");
 			String dniEnfermero = scanner.nextLine();
@@ -715,6 +756,7 @@ public class Administrador extends Empleado {
 			prueba.setEnfermero(enfermero);
 			prueba.setTecnicoLaboratorio(tecnico);
 			prueba.setPaciente(paciente);
+			prueba.setFecha(fechaPrueba2);
 			paciente.establecerPrueba(prueba);
 			enfermero.asignarPrueba(prueba);
 			tecnico.asignarPrueba(prueba);
@@ -724,9 +766,7 @@ public class Administrador extends Empleado {
 
 	@Override
 	public String toString() {
-		return "Administrador:\ngetPassword()=" + getPassword() + "\ngetDni()=" + getDni() + "\ngetNombre()="
-				+ getNombre() + "\ngetApellidos()=" + getApellidos() + "\ngetEdad()=" + getEdad() + "\ngetDireccion()="
-				+ getDireccion() + "\ngetTelefono()=" + getTelefono();
+		return "Administrador [getDni()=" + getDni() + ", getNombre()=" + getNombre() + "]";
 	}
 
 }

@@ -7,6 +7,10 @@ import personas.Paciente;
 import personas.Tecnico;
 
 public abstract class Prueba {
+
+	/**
+	 * Contador para generar los IDs de las pruebas
+	 */
 	private static int contador = 0;
 	private int id;
 	private Calendar fecha;

@@ -21,7 +21,7 @@ public class Moderna extends Vacuna {
 
 	@Override
 	public String toString() {
-		return "Moderna:\ngetDosis()=" + getDosis();
+		return "Moderna [getDosis()=" + getDosis() + "stock=" + cantidadStock + "]";
 	}
 
 }

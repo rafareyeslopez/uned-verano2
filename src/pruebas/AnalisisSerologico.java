@@ -1,4 +1,5 @@
 package pruebas;
+
 import personas.Paciente;
 
 public class AnalisisSerologico extends Prueba {
@@ -17,16 +18,16 @@ public class AnalisisSerologico extends Prueba {
 		super(paciente);
 	}
 
-	public boolean haPasadpInfeccon() {
+	public boolean haPasadoInfeccon() {
 		return valorAnticuerpos > 2;
 	}
 
 	@Override
 	public String toString() {
 		return "AnalisisSerologico [valorAnticuerpos=" + valorAnticuerpos + ", isRealizada()=" + isHecha()
-				+ ", getPaciente()=" + getPaciente() + ", getFecha()=" + getFecha() + ", getEnfermero()="
-				+ getEnfermero() + ", getTecnicoLaboratorio()=" + getTecnicoLaboratorio() + ", getId()=" + getId()
-				+ "]";
+				+ ", getPaciente()=" + getPaciente().getDni() + ", getFecha()=" + getFecha() + ", getEnfermero()="
+				+ getEnfermero().getDni() + ", getTecnicoLaboratorio()=" + getTecnicoLaboratorio().getDni()
+				+ ", getId()=" + getId() + "]";
 	}
 
 }

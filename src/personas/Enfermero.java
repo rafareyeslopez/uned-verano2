@@ -84,7 +84,7 @@ public class Enfermero extends Empleado {
 		String dni = scanner.nextLine();
 		Paciente paciente = getVacuna(dni);
 		System.out.println(paciente);
-		if (paciente.getVacuna() == null) {
+		if (paciente == null || paciente.getVacuna() == null) {
 			System.out.println("Vacunacion no valida");
 		} else {
 			if (paciente.getVacuna().getDosis() == 1) {
@@ -123,7 +123,7 @@ public class Enfermero extends Empleado {
 		int id = Integer.parseInt(scanner.nextLine());
 
 		Prueba prueba = getPrueba(id);
-
+		prueba.setHecha(true);
 		Paciente paciente = (Paciente) Persona.getPersona(prueba.getPaciente().getDni());
 
 		paciente.actualizarPrueba(prueba);
@@ -197,7 +197,7 @@ public class Enfermero extends Empleado {
 	 */
 	private Paciente getVacuna(String dni) {
 		for (Paciente paciente : vacunasEnfermero) {
-			if (paciente.getDni() == dni) {
+			if (paciente.getDni().equals(dni)) {
 				return paciente;
 			}
 		}

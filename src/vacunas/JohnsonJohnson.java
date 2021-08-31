@@ -22,7 +22,7 @@ public class JohnsonJohnson extends Vacuna {
 
 	@Override
 	public String toString() {
-		return "JohnsonJohnson:\ngetDosis()=" + getDosis();
+		return "JohnsonJohnson [getDosis()=" + getDosis() + "stock=" + cantidadStock + "]";
 	}
 
 }

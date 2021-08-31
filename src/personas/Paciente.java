@@ -162,7 +162,7 @@ public class Paciente extends Persona {
 				long milisegundos = fecha.getTimeInMillis() - otraPrueba.getFecha().getTimeInMillis();
 				long diferenciaDias = TimeUnit.MILLISECONDS.toDays(milisegundos);
 
-				if (diferenciaDias < 15) {
+				if (Math.abs(diferenciaDias) < 15) {
 					System.out.println("No se puede realizar test PCR porque ha hecho uno hace poco: " + otraPrueba);
 					return false;
 				}
@@ -188,7 +188,7 @@ public class Paciente extends Persona {
 				long diferenciaDias = TimeUnit.MILLISECONDS.toDays(milisegundos);
 
 				// 6 meses son 180 dias
-				if (diferenciaDias < 180) {
+				if (Math.abs(diferenciaDias) < 180) {
 					System.out.println(
 							"No se puede realizar el analisis serologico  porque ha hecho uno hace menos de 6 meses:"
 									+ otraPrueba);
@@ -225,6 +225,14 @@ public class Paciente extends Persona {
 
 	public void setConfinado(boolean confinado) {
 		this.confinado = confinado;
+	}
+
+	@Override
+	public String toString() {
+		return "Paciente [primeraDosis=" + primeraDosis + ", segundaDosis=" + segundaDosis + ", primeraDosisPuesta="
+				+ primeraDosisPuesta + ", segundaDosisPuesta=" + segundaDosisPuesta + ", vacuna=" + vacuna
+				+ ", fechaConfinamiento=" + fechaConfinamiento + ", confinado=" + confinado + ", getDni()=" + getDni()
+				+ ", getNombre()=" + getNombre() + ", getEdad()=" + getEdad() + "]";
 	}
 
 }
