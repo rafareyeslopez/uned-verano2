@@ -99,11 +99,7 @@ public abstract class Persona {
 		paciente.setConfinado(true);
 		Calendar fechaConfinamiento = Calendar.getInstance();
 		fechaConfinamiento.setTime(date);
-		Calendar fechaFinConfinamiento = Calendar.getInstance();
-		fechaFinConfinamiento.setTime(date);
-		fechaFinConfinamiento.add(Calendar.DAY_OF_YEAR, 10);
 		paciente.setFechaConfinamiento(fechaConfinamiento);
-		paciente.setFechaFinConfinamiento(fechaFinConfinamiento);
 		actualizarPersona(paciente);
 	}
 
