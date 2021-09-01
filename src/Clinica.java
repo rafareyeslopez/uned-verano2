@@ -14,43 +14,31 @@ import personas.Tecnico;
 public class Clinica {
 
 	/**
-	 * Servira para dado una fecha como String leida convertirla a tipo Fecha, bien
-	 * Date o Calendar
+	 * Servira para dado una fecha como String leida convertirla a tipo Fecha
 	 */
 	static SimpleDateFormat formatoFecha = new SimpleDateFormat("dd-MM-yyyy");
 
 	public static void main(String[] args) {
 
-		Enfermero enfermero1 = new Enfermero("1", "enfermero1", null, 20, null, null);
+		Enfermero enfermero1 = new Enfermero("11", "juan", null, 20, null, null);
 		Persona.alta(enfermero1);
-		Enfermero enfermero2 = new Enfermero("2", "enfermero2", null, 20, null, null);
+		Enfermero enfermero2 = new Enfermero("22", "pepe", null, 20, null, null);
 		Persona.alta(enfermero2);
-		Enfermero enfermero3 = new Enfermero("3", "enfermero3", null, 20, null, null);
+		Enfermero enfermero3 = new Enfermero("33", "rafa", null, 20, null, null);
 		Persona.alta(enfermero3);
 
-		Tecnico tecnico1 = new Tecnico("4", "tecnico1", null, 20, null, null);
+		Tecnico tecnico1 = new Tecnico("44", "sonia", null, 20, null, null);
 		Persona.alta(tecnico1);
-		Tecnico tecnico2 = new Tecnico("5", "tenico2", null, 20, null, null);
+		Tecnico tecnico2 = new Tecnico("55", "pablo", null, 20, null, null);
 		Persona.alta(tecnico2);
-		Tecnico tecnico3 = new Tecnico("6", "enfermero3", null, 20, null, null);
+		Tecnico tecnico3 = new Tecnico("66", "antonio", null, 20, null, null);
 		Persona.alta(tecnico3);
 
-		Paciente paciente1 = new Paciente("7", "paciente1", null, 40, null, null);
+		Paciente paciente1 = new Paciente("77", "paco", null, 40, null, null);
 		Persona.alta(paciente1);
-//		Paciente paciente2 = new Paciente("8", "paciente2", 68);
-//		GestorUsuarios.alta(paciente2);
-//		Paciente paciente3 = new Paciente("9", "paciente2", 80);
-//		GestorUsuarios.alta(paciente3);
 
-		// prueba vacunacion rango
-		Paciente paciente2 = new Paciente("8", "paciente2", null, 67, null, null);
-		Persona.alta(paciente2);
-
-		Paciente paciente3 = new Paciente("9", "paciente3", null, 80, null, null);
-		Persona.alta(paciente3);
-
-		// El admiistrador ha de crearse al menos para poder acceder al sistema
-		Administrador admin = new Administrador("0", "admin", null, 40, null, null);
+		// El administrador ha de crearse al menos para poder acceder al sistema
+		Administrador admin = new Administrador("000", "admin", null, 40, null, null);
 		Persona.alta(admin);
 
 		int opcion = -1;

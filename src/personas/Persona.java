@@ -157,14 +157,6 @@ public abstract class Persona {
 		return usuarios;
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((dni == null) ? 0 : dni.hashCode());
-		return result;
-	}
-
 	/**
 	 * Dos personas son iguales si tienen el mismo dni
 	 */

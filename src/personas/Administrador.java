@@ -370,9 +370,22 @@ public class Administrador extends Empleado {
 		String dni = scanner.nextLine();
 		Persona usuario = Persona.getPersona(dni);
 		System.out.println(usuario);
-		System.out.println("Introduzca nombre actualizaco");
+		System.out.println("Introduzca nombre actualizado");
 		String nuevoNombre = scanner.nextLine();
 		usuario.setNombre(nuevoNombre);
+		System.out.println("Introduzca apellidos actualizado");
+		String nuevoApellido = scanner.nextLine();
+		usuario.setApellidos(nuevoApellido);
+		System.out.println("Introduzca edad actualizada");
+		int nuvaEdad = Integer.parseInt(scanner.nextLine());
+		usuario.setEdad(nuvaEdad);
+		System.out.println("Introduzca direccion actualizada");
+		String nuevaDireccion = scanner.nextLine();
+		usuario.setDireccion(nuevaDireccion);
+		System.out.println("Introduzca telefono actualizado");
+		String nuevoTelefono = scanner.nextLine();
+		usuario.setTelefono(nuevoTelefono);
+
 		Persona.modificacion(usuario);
 	}
 
@@ -753,13 +766,22 @@ public class Administrador extends Empleado {
 			System.out.println("Introduzca DNI tecnico");
 			String dniTecnico = scanner.nextLine();
 			Tecnico tecnico = (Tecnico) Persona.getPersona(dniTecnico);
-			prueba.setEnfermero(enfermero);
-			prueba.setTecnicoLaboratorio(tecnico);
-			prueba.setPaciente(paciente);
-			prueba.setFecha(fechaPrueba2);
-			paciente.establecerPrueba(prueba);
-			enfermero.asignarPrueba(prueba);
-			tecnico.asignarPrueba(prueba);
+			if (enfermero.puedeRealizarPrueba(fechaPruebaDate)) {
+				if (tecnico.puedeRealizarPrueba(fechaPruebaDate)) {
+					prueba.setEnfermero(enfermero);
+					prueba.setTecnicoLaboratorio(tecnico);
+					prueba.setPaciente(paciente);
+					prueba.setFecha(fechaPrueba2);
+					paciente.establecerPrueba(prueba);
+					enfermero.asignarPrueba(prueba);
+					tecnico.asignarPrueba(prueba);
+				} else {
+					System.out.println("Ese tenico tiene demasiadas pruebas esa semana");
+				}
+			} else {
+				System.out.println("Ese enfermero tiene demasiadas pruebas esa semana");
+
+			}
 		}
 
 	}
